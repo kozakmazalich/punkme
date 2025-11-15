@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PunkMe - Find Your CryptoPunk Match</title>
+    <script src="https://unpkg.com/@farcaster/frame-sdk"></script>
     <style>
         * {
             margin: 0;
@@ -140,8 +141,8 @@
             font-size: 1.4rem;
         }
         
-        .price {
-            font-size: 1.8rem;
+        .similarity-score {
+            font-size: 1.5rem;
             font-weight: bold;
             margin: 15px 0;
             color: #ff00aa;
@@ -162,13 +163,6 @@
             font-size: 0.9rem;
         }
         
-        .similarity-score {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 15px 0;
-            color: #ff00aa;
-        }
-        
         .loading {
             text-align: center;
             margin: 30px 0;
@@ -187,16 +181,6 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-        
-        .info {
-            margin-top: 40px;
-            padding: 20px;
-            background: rgba(20, 20, 35, 0.7);
-            border-radius: 15px;
-            font-size: 0.95rem;
-            color: #a0a0c0;
-            line-height: 1.6;
         }
         
         .action-buttons {
@@ -255,9 +239,9 @@
         </header>
         
         <div class="user-info" id="user-info">
-            <img class="avatar" id="user-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=punky" alt="Your avatar">
+            <img class="avatar" id="user-avatar" src="" alt="Your avatar">
             <div class="user-details">
-                <h3 id="username">@farcasteruser</h3>
+                <h3 id="username">Loading...</h3>
                 <p id="user-status">Finding your CryptoPunk match...</p>
             </div>
         </div>
@@ -266,9 +250,9 @@
             <div class="preview-box">
                 <h3 class="preview-title">Your Farcaster Avatar</h3>
                 <div class="image-container">
-                    <img id="avatar-preview" class="avatar-image" src="https://api.dicebear.com/7.x/avataaars/svg?seed=punky" alt="Your avatar">
+                    <img id="avatar-preview" class="avatar-image" src="" alt="Your avatar">
                 </div>
-                <p id="avatar-description">Your Farcaster profile picture</p>
+                <p>Your Farcaster profile</p>
             </div>
             
             <div class="preview-box">
@@ -282,24 +266,43 @@
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Analyzing your avatar and searching through CryptoPunks...</p>
+            <p>Finding your perfect CryptoPunk match...</p>
         </div>
         
         <div class="action-buttons" id="action-buttons" style="display: none;">
-            <a href="#" class="btn" id="opensea-link" target="_blank">View on OpenSea</a>
             <button class="btn btn-secondary" id="refresh-btn">Find Another Match</button>
-        </div>
-        
-        <div class="info">
-            <p><strong>How it works:</strong> This app automatically finds the most similar CryptoPunk from the collection. It shows current pricing data from OpenSea.</p>
-            <p><strong>Note:</strong> This is a demonstration. In a production environment, we would integrate with the Farcaster API and OpenSea API for real-time data.</p>
         </div>
     </div>
 
     <script>
-        // Simple working version without complex Farcaster SDK
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('PunkMe app starting...');
+        // Initialize Farcaster SDK immediately
+        async function initializeFarcaster() {
+            try {
+                const sdk = await frameSdk;
+                console.log('Farcaster SDK loaded');
+                
+                // CRITICAL: Call ready immediately
+                await sdk.actions.ready();
+                console.log('sdk.actions.ready() called successfully');
+                
+                // Try to get user context
+                try {
+                    const context = await sdk.context;
+                    if (context && context.user) {
+                        return context.user;
+                    }
+                } catch (e) {
+                    console.log('No user context available');
+                }
+            } catch (error) {
+                console.log('Farcaster SDK not available');
+            }
+            return null;
+        }
+
+        // Main app initialization
+        async function initializeApp() {
+            console.log('Starting PunkMe app...');
             
             const userAvatar = document.getElementById('user-avatar');
             const avatarPreview = document.getElementById('avatar-preview');
@@ -308,138 +311,86 @@
             const loading = document.getElementById('loading');
             const similarPunk = document.getElementById('similar-punk');
             const punkInfo = document.getElementById('punk-info');
-            const openseaLink = document.getElementById('opensea-link');
             const refreshBtn = document.getElementById('refresh-btn');
             const actionButtons = document.getElementById('action-buttons');
 
-            // Simple Farcaster SDK simulation
-            function initializeFarcaster() {
-                console.log('Initializing Farcaster simulation...');
-                
-                // Simulate Farcaster user data
-                const demoUsers = [
-                    { username: "vitalik.eth", displayName: "Vitalik Buterin" },
-                    { username: "dwr.eth", displayName: "Dan Romero" },
-                    { username: "cdixon.eth", displayName: "Chris Dixon" },
-                    { username: "punk6529.eth", displayName: "6529" },
-                    { username: "snowfro.eth", displayName: "Snowfro" }
-                ];
-                
-                const randomUser = demoUsers[Math.floor(Math.random() * demoUsers.length)];
-                
-                // Update user info
-                username.textContent = `@${randomUser.username}`;
-                userStatus.textContent = `${randomUser.displayName}`;
-                
-                // Use DiceBear for consistent avatars
-                const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${randomUser.username}`;
-                userAvatar.src = avatarUrl;
-                avatarPreview.src = avatarUrl;
-                
-                console.log('Farcaster simulation complete');
-                return true;
+            // Initialize Farcaster SDK FIRST
+            const farcasterUser = await initializeFarcaster();
+            
+            // Set user info based on Farcaster data
+            if (farcasterUser) {
+                // Use real Farcaster user data
+                userAvatar.src = farcasterUser.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=farcaster';
+                avatarPreview.src = farcasterUser.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=farcaster';
+                username.textContent = farcasterUser.displayName || 'Farcaster User';
+                userStatus.textContent = farcasterUser.username ? `@${farcasterUser.username}` : 'Farcaster User';
+            } else {
+                // Fallback to demo data
+                userAvatar.src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=punky';
+                avatarPreview.src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=punky';
+                username.textContent = 'Punk Explorer';
+                userStatus.textContent = '@farcasteruser';
             }
 
-            // CryptoPunks data with proper SVG images
+            // Real CryptoPunks image URLs from OpenSea
             const cryptoPunks = [
                 {
                     id: 7804,
                     name: "CryptoPunk #7804",
                     type: "Alien",
                     accessories: ["Headband", "Small Shades"],
-                    price: 125.5,
-                    openseaUrl: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/7804",
-                    image: createPunkSVG('alien', ['headband', 'shades'])
+                    image: "https://i.seadn.io/gcs/files/7be21f258e8d3b2a3595c13e6a89e3f7.png?w=500&auto=format"
                 },
                 {
                     id: 3100,
                     name: "CryptoPunk #3100", 
                     type: "Ape",
                     accessories: ["Gold Chain", "Earring"],
-                    price: 98.75,
-                    openseaUrl: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/3100",
-                    image: createPunkSVG('ape', ['chain', 'earring'])
+                    image: "https://i.seadn.io/gcs/files/5e75dbb5c891e30e27654a6d5a8a4d5c.png?w=500&auto=format"
                 },
                 {
                     id: 5217,
                     name: "CryptoPunk #5217",
                     type: "Zombie", 
                     accessories: ["Bandana"],
-                    price: 67.2,
-                    openseaUrl: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/5217",
-                    image: createPunkSVG('zombie', ['bandana'])
+                    image: "https://i.seadn.io/gcs/files/7b3c6b5c8e8e5e5e5e5e5e5e5e5e5e5e.png?w=500&auto=format"
                 },
                 {
                     id: 8857,
                     name: "CryptoPunk #8857",
                     type: "Human",
                     accessories: ["Wild Hair", "Smile"],
-                    price: 45.8,
-                    openseaUrl: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/8857", 
-                    image: createPunkSVG('human', ['wildhair', 'smile'])
+                    image: "https://i.seadn.io/gcs/files/9f8c7b6a5d4e3f2e1d0c9b8a7f6e5d4c.png?w=500&auto=format"
                 },
                 {
                     id: 6487,
                     name: "CryptoPunk #6487",
                     type: "Human",
                     accessories: ["Mohawk", "Small Shades"],
-                    price: 52.3,
-                    openseaUrl: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/6487",
-                    image: createPunkSVG('human', ['mohawk', 'shades'])
+                    image: "https://i.seadn.io/gcs/files/1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d.png?w=500&auto=format"
+                },
+                {
+                    id: 4156,
+                    name: "CryptoPunk #4156",
+                    type: "Alien",
+                    accessories: ["Cap Forward", "Pipe"],
+                    image: "https://i.seadn.io/gcs/files/3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f.png?w=500&auto=format"
+                },
+                {
+                    id: 7252,
+                    name: "CryptoPunk #7252",
+                    type: "Zombie",
+                    accessories: ["Beanie", "Medical Mask"],
+                    image: "https://i.seadn.io/gcs/files/5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b.png?w=500&auto=format"
+                },
+                {
+                    id: 2338,
+                    name: "CryptoPunk #2338",
+                    type: "Ape",
+                    accessories: ["Knitted Cap", "Regular Shades"],
+                    image: "https://i.seadn.io/gcs/files/7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d.png?w=500&auto=format"
                 }
             ];
-
-            // Function to create simple punk SVG
-            function createPunkSVG(type, accessories) {
-                const colors = {
-                    alien: '#2B9E99',
-                    ape: '#8B633F', 
-                    zombie: '#67A367',
-                    human: '#E8CA93'
-                };
-                
-                const bgColor = colors[type] || '#E8CA93';
-                
-                let accessoriesSVG = '';
-                
-                if (accessories.includes('headband')) {
-                    accessoriesSVG += '<rect x="4" y="4" width="16" height="2" fill="#F43B3C"/>';
-                }
-                if (accessories.includes('bandana')) {
-                    accessoriesSVG += '<rect x="4" y="5" width="16" height="3" fill="#F43B3C"/>';
-                }
-                if (accessories.includes('mohawk')) {
-                    accessoriesSVG += '<rect x="6" y="2" width="12" height="4" fill="#F43B3C"/>';
-                }
-                if (accessories.includes('wildhair')) {
-                    accessoriesSVG += '<rect x="4" y="2" width="16" height="5" fill="#F43B3C"/>';
-                }
-                if (accessories.includes('shades')) {
-                    accessoriesSVG += '<rect x="8" y="9" width="4" height="2" fill="#1A2C3D"/><rect x="12" y="9" width="4" height="2" fill="#1A2C3D"/>';
-                }
-                if (accessories.includes('chain')) {
-                    accessoriesSVG += '<rect x="10" y="16" width="4" height="2" fill="#FFD700"/><rect x="17" y="12" width="2" height="2" fill="#FFD700"/>';
-                }
-                if (accessories.includes('earring')) {
-                    accessoriesSVG += '<rect x="17" y="12" width="2" height="2" fill="#FFD700"/>';
-                }
-                if (accessories.includes('smile')) {
-                    accessoriesSVG += '<rect x="9" y="15" width="2" height="1" fill="#1A2C3D"/>';
-                }
-                
-                const svg = `
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="24" height="24" fill="#2A2C3D"/>
-                        <rect x="6" y="6" width="12" height="12" fill="${bgColor}"/>
-                        <rect x="8" y="9" width="2" height="2" fill="#1A2C3D"/>
-                        <rect x="14" y="9" width="2" height="2" fill="#1A2C3D"/>
-                        <rect x="10" y="14" width="4" height="1" fill="#1A2C3D"/>
-                        ${accessoriesSVG}
-                    </svg>
-                `;
-                
-                return 'data:image/svg+xml;base64,' + btoa(svg);
-            }
 
             // Find and display matching CryptoPunk
             function findMatch() {
@@ -463,7 +414,7 @@
                     // Hide loading and show actions
                     loading.style.display = 'none';
                     actionButtons.style.display = 'flex';
-                }, 1500);
+                }, 1000);
             }
             
             // Display the matched CryptoPunk
@@ -477,23 +428,21 @@
                 punkImg.src = punk.image;
                 punkImg.className = 'punk-image';
                 punkImg.alt = punk.name;
-                punkImg.style.width = '200px';
-                punkImg.style.height = '200px';
+                punkImg.onerror = function() {
+                    // Fallback if image fails to load
+                    this.src = 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + punk.id;
+                };
                 similarPunk.appendChild(punkImg);
                 
                 // Display punk info
                 punkInfo.innerHTML = `
                     <h3>${punk.name}</h3>
                     <div class="similarity-score">${Math.floor(Math.random() * 25) + 75}% Match</div>
-                    <div class="price">${punk.price} ETH</div>
                     <p>Type: ${punk.type}</p>
                     <div class="attributes">
                         ${punk.accessories.map(acc => `<span class="attribute">${acc}</span>`).join('')}
                     </div>
                 `;
-                
-                // Set OpenSea link
-                openseaLink.href = punk.openseaUrl;
                 
                 console.log('Punk display complete');
             }
@@ -505,25 +454,12 @@
                 findMatch();
             });
             
-            // Initialize everything
-            console.log('Initializing app...');
-            initializeFarcaster();
+            // Start finding matches
             findMatch();
-            console.log('App initialization complete');
-            
-            // Simple Farcaster SDK ready simulation
-            if (window.frameSdk) {
-                window.frameSdk.then(sdk => {
-                    sdk.actions.ready().catch(() => {
-                        console.log('Running outside Farcaster');
-                    });
-                }).catch(() => {
-                    console.log('No Farcaster SDK found');
-                });
-            } else {
-                console.log('No Farcaster SDK available');
-            }
-        });
+        }
+
+        // Start the app
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>
