@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PunkMe - Find Your CryptoPunk Match</title>
-    <script src="https://cdn.jsdelivr.net/npm/@farcaster/auth-kit"></script>
     <script src="https://unpkg.com/@farcaster/frame-sdk"></script>
     <style>
         * {
@@ -233,6 +232,16 @@
             color: white;
         }
         
+        .error-message {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff4444;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            color: #ff8888;
+        }
+        
         @media (max-width: 768px) {
             .preview-container {
                 grid-template-columns: 1fr;
@@ -259,8 +268,8 @@
         <div class="user-info" id="user-info">
             <img class="avatar" id="user-avatar" src="" alt="Your avatar">
             <div class="user-details">
-                <h3 id="username">Loading...</h3>
-                <p>Finding your CryptoPunk match...</p>
+                <h3 id="username">Loading Farcaster data...</h3>
+                <p id="user-status">Connecting to Farcaster...</p>
             </div>
         </div>
         
@@ -270,13 +279,13 @@
                 <div class="image-container">
                     <img id="avatar-preview" class="avatar-image" src="" alt="Your avatar">
                 </div>
-                <p>This is your current Farcaster profile picture</p>
+                <p id="avatar-description">Loading your avatar...</p>
             </div>
             
             <div class="preview-box">
                 <h3 class="preview-title">Your CryptoPunk Match</h3>
                 <div class="image-container">
-                    <div id="similar-punk">Finding your match...</div>
+                    <div id="similar-punk">Waiting for avatar...</div>
                 </div>
                 <div class="punk-info" id="punk-info"></div>
             </div>
@@ -299,27 +308,51 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Initialize Farcaster SDK
-            const sdk = await frameSdk;
-            
-            try {
-                // Tell the SDK the frame is ready
-                await sdk.actions.ready();
-                console.log('Farcaster SDK ready');
-            } catch (error) {
-                console.log('Running outside of Farcaster frame');
-            }
-
+        // Initialize the app when the page loads
+        async function initializeApp() {
             const userAvatar = document.getElementById('user-avatar');
             const avatarPreview = document.getElementById('avatar-preview');
             const username = document.getElementById('username');
+            const userStatus = document.getElementById('user-status');
+            const avatarDescription = document.getElementById('avatar-description');
             const loading = document.getElementById('loading');
             const similarPunk = document.getElementById('similar-punk');
             const punkInfo = document.getElementById('punk-info');
             const openseaLink = document.getElementById('opensea-link');
             const refreshBtn = document.getElementById('refresh-btn');
             const actionButtons = document.getElementById('action-buttons');
+            
+            let farcasterUser = null;
+            
+            try {
+                console.log('Initializing Farcaster SDK...');
+                
+                // Initialize Farcaster SDK
+                const sdk = await frameSdk;
+                console.log('Farcaster SDK loaded');
+                
+                // Tell the SDK the frame is ready - THIS IS CRITICAL
+                await sdk.actions.ready();
+                console.log('sdk.actions.ready() called successfully');
+                
+                // Try to get user context
+                try {
+                    const context = await sdk.context;
+                    console.log('Farcaster context:', context);
+                    
+                    if (context && context.user) {
+                        farcasterUser = context.user;
+                        console.log('Farcaster user detected:', farcasterUser);
+                    } else {
+                        console.log('No user context available, using demo mode');
+                    }
+                } catch (contextError) {
+                    console.log('Could not get user context, using demo mode:', contextError);
+                }
+                
+            } catch (sdkError) {
+                console.log('Farcaster SDK not available, running in demo mode:', sdkError);
+            }
             
             // Sample CryptoPunks data with realistic prices
             const cryptoPunks = [
@@ -370,27 +403,60 @@
                 }
             ];
 
-            // Sample Farcaster user data
-            const farcasterUsers = [
-                { username: "vitalik.eth", avatar: "https://i.imgur.com/3QZ0l4y.png" },
-                { username: "dwr.eth", avatar: "https://i.imgur.com/5J8W4Xy.png" },
-                { username: "cdixon.eth", avatar: "https://i.imgur.com/7J5J0l4.png" },
-                { username: "punk6529.eth", avatar: "https://i.imgur.com/9J2W4Xy.png" },
-                { username: "snowfro.eth", avatar: "https://i.imgur.com/1J8W0l4.png" }
+            // Sample Farcaster user data for demo
+            const farcasterDemoUsers = [
+                { 
+                    username: "vitalik.eth", 
+                    displayName: "Vitalik",
+                    avatar: "https://i.imgur.com/3QZ0l4y.png",
+                    fid: 1
+                },
+                { 
+                    username: "dwr.eth", 
+                    displayName: "Dan Romero",
+                    avatar: "https://i.imgur.com/5J8W4Xy.png",
+                    fid: 2
+                },
+                { 
+                    username: "cdixon.eth", 
+                    displayName: "Chris Dixon",
+                    avatar: "https://i.imgur.com/7J5J0l4.png",
+                    fid: 3
+                },
+                { 
+                    username: "punk6529.eth", 
+                    displayName: "6529",
+                    avatar: "https://i.imgur.com/9J2W4Xy.png",
+                    fid: 4
+                },
+                { 
+                    username: "snowfro.eth", 
+                    displayName: "Snowfro",
+                    avatar: "https://i.imgur.com/1J8W0l4.png",
+                    fid: 5
+                }
             ];
 
-            // Initialize the app
-            function initApp() {
-                // Simulate Farcaster user detection
-                const randomUser = farcasterUsers[Math.floor(Math.random() * farcasterUsers.length)];
-                
-                // Set user info
-                userAvatar.src = randomUser.avatar;
-                avatarPreview.src = randomUser.avatar;
-                username.textContent = `@${randomUser.username}`;
-                
-                // Start finding match
-                findMatch();
+            // Set user info based on Farcaster data or demo data
+            function setUserInfo(userData) {
+                if (userData) {
+                    // Use real Farcaster user data
+                    userAvatar.src = userData.avatar || '/placeholder-avatar.png';
+                    avatarPreview.src = userData.avatar || '/placeholder-avatar.png';
+                    username.textContent = userData.displayName || `@${userData.username}`;
+                    userStatus.textContent = `@${userData.username}`;
+                    avatarDescription.textContent = "Your Farcaster profile picture";
+                    console.log('Set real Farcaster user data');
+                } else {
+                    // Use demo data
+                    const demoUser = farcasterDemoUsers[Math.floor(Math.random() * farcasterDemoUsers.length)];
+                    userAvatar.src = demoUser.avatar;
+                    avatarPreview.src = demoUser.avatar;
+                    username.textContent = demoUser.displayName;
+                    userStatus.textContent = `@${demoUser.username} (Demo)`;
+                    avatarDescription.textContent = "Demo Farcaster avatar";
+                    console.log('Set demo user data');
+                }
             }
 
             // Find the most similar CryptoPunk
@@ -398,6 +464,8 @@
                 // Show loading
                 loading.style.display = 'block';
                 actionButtons.style.display = 'none';
+                similarPunk.innerHTML = 'Finding your match...';
+                punkInfo.innerHTML = '';
                 
                 // Simulate API processing delay
                 setTimeout(() => {
@@ -410,7 +478,7 @@
                     // Hide loading and show actions
                     loading.style.display = 'none';
                     actionButtons.style.display = 'flex';
-                }, 2500);
+                }, 2000);
             }
             
             // Display the matched CryptoPunk
@@ -445,9 +513,13 @@
                 findMatch();
             });
             
-            // Initialize the app when page loads
-            initApp();
-        });
+            // Initialize user and start matching
+            setUserInfo(farcasterUser);
+            findMatch();
+        }
+
+        // Start the app when the page loads
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>
