@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farcaster CryptoPunk Finder</title>
+    <title>PunkMe - Find Your CryptoPunk Match</title>
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/auth-kit"></script>
+    <script src="https://unpkg.com/@farcaster/frame-sdk"></script>
     <style>
         * {
             margin: 0;
@@ -250,8 +252,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Farcaster CryptoPunk Finder</h1>
-            <p class="subtitle">Automatically find which CryptoPunk matches your Farcaster avatar</p>
+            <h1>PunkMe</h1>
+            <p class="subtitle">Find which CryptoPunk matches your Farcaster avatar</p>
         </header>
         
         <div class="user-info" id="user-info">
@@ -297,7 +299,18 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize Farcaster SDK
+            const sdk = await frameSdk;
+            
+            try {
+                // Tell the SDK the frame is ready
+                await sdk.actions.ready();
+                console.log('Farcaster SDK ready');
+            } catch (error) {
+                console.log('Running outside of Farcaster frame');
+            }
+
             const userAvatar = document.getElementById('user-avatar');
             const avatarPreview = document.getElementById('avatar-preview');
             const username = document.getElementById('username');
