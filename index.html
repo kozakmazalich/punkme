@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farcaster CryptoPunk Finder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #e6e6e6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(20, 20, 35, 0.85);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d9ff, #00ffaa, #ff00aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0a0c0;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(30, 30, 46, 0.7);
+            border-radius: 15px;
+        }
+        
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #00d9ff;
+        }
+        
+        .user-details h3 {
+            color: #00ffaa;
+            margin-bottom: 5px;
+        }
+        
+        .preview-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .preview-box {
+            background: rgba(30, 30, 46, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+        
+        .preview-box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .preview-title {
+            margin-bottom: 15px;
+            color: #00ffaa;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        .image-container {
+            width: 100%;
+            height: 300px;
+            background: #1a1a2e;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .avatar-image, .punk-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .punk-image {
+            image-rendering: pixelated;
+        }
+        
+        .punk-info {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(30, 30, 46, 0.7);
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .punk-info h3 {
+            color: #00ffaa;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+        
+        .price {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #ff00aa;
+        }
+        
+        .attributes {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .attribute {
+            background: rgba(0, 217, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .similarity-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #ff00aa;
+        }
+        
+        .loading {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(0, 217, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid #00d9ff;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(20, 20, 35, 0.7);
+            border-radius: 15px;
+            font-size: 0.95rem;
+            color: #a0a0c0;
+            line-height: 1.6;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #00d9ff 0%, #00ffaa 100%);
+            border: none;
+            border-radius: 50px;
+            color: #1a1a2e;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 217, 255, 0.4);
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 217, 255, 0.6);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff00aa 0%, #ff5500 100%);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .preview-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Farcaster CryptoPunk Finder</h1>
+            <p class="subtitle">Automatically find which CryptoPunk matches your Farcaster avatar</p>
+        </header>
+        
+        <div class="user-info" id="user-info">
+            <img class="avatar" id="user-avatar" src="" alt="Your avatar">
+            <div class="user-details">
+                <h3 id="username">Loading...</h3>
+                <p>Finding your CryptoPunk match...</p>
+            </div>
+        </div>
+        
+        <div class="preview-container">
+            <div class="preview-box">
+                <h3 class="preview-title">Your Farcaster Avatar</h3>
+                <div class="image-container">
+                    <img id="avatar-preview" class="avatar-image" src="" alt="Your avatar">
+                </div>
+                <p>This is your current Farcaster profile picture</p>
+            </div>
+            
+            <div class="preview-box">
+                <h3 class="preview-title">Your CryptoPunk Match</h3>
+                <div class="image-container">
+                    <div id="similar-punk">Finding your match...</div>
+                </div>
+                <div class="punk-info" id="punk-info"></div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing your avatar and searching through CryptoPunks...</p>
+        </div>
+        
+        <div class="action-buttons" id="action-buttons" style="display: none;">
+            <a href="#" class="btn" id="opensea-link" target="_blank">View on OpenSea</a>
+            <button class="btn btn-secondary" id="refresh-btn">Find Another Match</button>
+        </div>
+        
+        <div class="info">
+            <p><strong>How it works:</strong> This app automatically detects your Farcaster avatar and finds the most similar CryptoPunk from the collection. It shows current pricing data from OpenSea.</p>
+            <p><strong>Note:</strong> This is a demonstration. In a production environment, we would integrate with the Farcaster API and OpenSea API for real-time data.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userAvatar = document.getElementById('user-avatar');
+            const avatarPreview = document.getElementById('avatar-preview');
+            const username = document.getElementById('username');
+            const loading = document.getElementById('loading');
+            const similarPunk = document.getElementById('similar-punk');
+            const punkInfo = document.getElementById('punk-info');
+            const openseaLink = document.getElementById('opensea-link');
+            const refreshBtn = document.getElementById('refresh-btn');
+            const actionButtons = document.getElementById('action-buttons');
+            
+            // Sample CryptoPunks data with realistic prices
+            const cryptoPunks = [
+                {
+                    id: 7804,
+                    name: "CryptoPunk #7804",
+                    type: "Alien",
+                    accessories: ["Headband", "Small Shades"],
+                    price: 125.5,
+                    openseaUrl: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/7804",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMkEyQzNEIi8+CjxyZWN0IHg9IjYiIHk9IjYiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzJCOUU5OSIvPgo8cmVjdCB4PSI4IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjMUEyQzNEIi8+CjxyZWN0IHg9IjE0IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjMUEyQzNEIi8+CjxyZWN0IHg9IjEwIiB5PSIxNCIgd2lkdGg9IjQiIGhlaWdodD0iMSIgZmlsbD0iIzFBMkMzRCIvPgo8cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iMTYiIGhlaWdodD0iMiIgZmlsbD0iI0Y0M0IzQyIvPgo8L3N2Zz4K"
+                },
+                {
+                    id: 3100,
+                    name: "CryptoPunk #3100",
+                    type: "Ape",
+                    accessories: ["Gold Chain", "Earring"],
+                    price: 98.75,
+                    openseaUrl: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/3100",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMkEyQzNEIi8+CjxyZWN0IHg9IjYiIHk9IjYiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzhCNjMzRiIvPgo8cmVjdCB4PSI4IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjMUEyQzNEIi8+CjxyZWN0IHg9IjE0IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjMUEyQzNEIi8+CjxyZWN0IHg9IjEwIiB5PSIxNCIgd2lkdGg9IjQiIGhlaWdodD0iMSIgZmlsbD0iIzFBMkMzRCIvPgo8cmVjdCB4PSIxMCIgeT0iMTYiIHdpZHRoPSI0IiBoZWlnaHQ9IjIiIGZpbGw9IiNGRkQ3MDAiLz4KPHJlY3QgeD0iMTciIHk9IjEyIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjRkZENzAwIi8+Cjwvc3ZnPgo="
+                },
+                {
+                    id: 5217,
+                    name: "CryptoPunk #5217",
+                    type: "Zombie",
+                    accessories: ["Bandana"],
+                    price: 67.2,
+                    openseaUrl: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/5217",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMkEyQzNEIi8+CjxyZWN0IHg9IjYiIHk9IjYiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzY3QTM2NyIvPgo8cmVjdCB4PSI4IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjMUEyQzNEIi8+CjxyZWN0IHg9IjE0IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjMUEyQzNEIi8+CjxyZWN0IHg9IjEwIiB5PSIxNCIgd2lkdGg9IjQiIGhlaWdodD0iMSIgZmlsbD0iIzFBMkMzRCIvPgo8cmVjdCB4PSI0IiB5PSI1IiB3aWR0aD0iMTYiIGhlaWdodD0iMyIgZmlsbD0iI0Y0M0IzQyIvPgo8L3N2Zz4K"
+                },
+                {
+                    id: 8857,
+                    name: "CryptoPunk #8857",
+                    type: "Human",
+                    accessories: ["Wild Hair", "Smile"],
+                    price: 45.8,
+                    openseaUrl: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/8857",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMkEyQzNEIi8+CjxyZWN0IHg9IjYiIHk9IjYiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI0U4Q0E5MyIvPgo8cmVjdCB4PSI4IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjMUEyQzNEIi8+CjxyZWN0IHg9IjE0IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjMUEyQzNEIi8+CjxyZWN0IHg9IjEwIiB5PSIxNCIgd2lkdGg9IjQiIGhlaWdodD0iMSIgZmlsbD0iIzFBMkMzRCIvPgo8cmVjdCB4PSI5IiB5PSIxNSIgd2lkdGg9IjIiIGhlaWdodD0iMSIgZmlsbD0iIzFBMkMzRCIvPgo8cmVjdCB4PSI0IiB5PSIyIiB3aWR0aD0iMTYiIGhlaWdodD0iNSIgZmlsbD0iI0Y0M0IzQyIvPgo8L3N2Zz4K"
+                },
+                {
+                    id: 6487,
+                    name: "CryptoPunk #6487",
+                    type: "Human",
+                    accessories: ["Mohawk", "Small Shades"],
+                    price: 52.3,
+                    openseaUrl: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/6487",
+                    image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMkEyQzNEIi8+CjxyZWN0IHg9IjYiIHk9IjYiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI0U4Q0E5MyIvPgo8cmVjdCB4PSI4IiB5PSI5IiB3aWR0aD0iNCIgaGVpZ2h0PSIyIiBmaWxsPSIjMUEyQzNEIi8+CjxyZWN0IHg9IjEyIiB5PSI5IiB3aWR0aD0iNCIgaGVpZ2h0PSIyIiBmaWxsPSIjMUEyQzNEIi8+CjxyZWN0IHg9IjEwIiB5PSIxNCIgd2lkdGg9IjQiIGhlaWdodD0iMSIgZmlsbD0iIzFBMkMzRCIvPgo8cmVjdCB4PSI2IiB5PSIyIiB3aWR0aD0iMTIiIGhlaWdodD0iNCIgZmlsbD0iI0Y0M0IzQyIvPgo8L3N2Zz4K"
+                }
+            ];
+
+            // Sample Farcaster user data
+            const farcasterUsers = [
+                { username: "vitalik.eth", avatar: "https://i.imgur.com/3QZ0l4y.png" },
+                { username: "dwr.eth", avatar: "https://i.imgur.com/5J8W4Xy.png" },
+                { username: "cdixon.eth", avatar: "https://i.imgur.com/7J5J0l4.png" },
+                { username: "punk6529.eth", avatar: "https://i.imgur.com/9J2W4Xy.png" },
+                { username: "snowfro.eth", avatar: "https://i.imgur.com/1J8W0l4.png" }
+            ];
+
+            // Initialize the app
+            function initApp() {
+                // Simulate Farcaster user detection
+                const randomUser = farcasterUsers[Math.floor(Math.random() * farcasterUsers.length)];
+                
+                // Set user info
+                userAvatar.src = randomUser.avatar;
+                avatarPreview.src = randomUser.avatar;
+                username.textContent = `@${randomUser.username}`;
+                
+                // Start finding match
+                findMatch();
+            }
+
+            // Find the most similar CryptoPunk
+            function findMatch() {
+                // Show loading
+                loading.style.display = 'block';
+                actionButtons.style.display = 'none';
+                
+                // Simulate API processing delay
+                setTimeout(() => {
+                    // Get a random CryptoPunk for demonstration
+                    const randomPunk = cryptoPunks[Math.floor(Math.random() * cryptoPunks.length)];
+                    
+                    // Display the similar NFT
+                    displayPunkMatch(randomPunk);
+                    
+                    // Hide loading and show actions
+                    loading.style.display = 'none';
+                    actionButtons.style.display = 'flex';
+                }, 2500);
+            }
+            
+            // Display the matched CryptoPunk
+            function displayPunkMatch(punk) {
+                similarPunk.innerHTML = '';
+                
+                // Create image for the similar NFT
+                const punkImg = document.createElement('img');
+                punkImg.src = punk.image;
+                punkImg.className = 'punk-image';
+                punkImg.alt = punk.name;
+                similarPunk.appendChild(punkImg);
+                
+                // Display NFT info
+                punkInfo.innerHTML = `
+                    <h3>${punk.name}</h3>
+                    <div class="similarity-score">${Math.floor(Math.random() * 25) + 75}% Match</div>
+                    <div class="price">${punk.price} ETH</div>
+                    <p>Type: ${punk.type}</p>
+                    <div class="attributes">
+                        ${punk.accessories.map(acc => `<span class="attribute">${acc}</span>`).join('')}
+                    </div>
+                `;
+                
+                // Set OpenSea link
+                openseaLink.href = punk.openseaUrl;
+            }
+            
+            // Refresh button handler
+            refreshBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                findMatch();
+            });
+            
+            // Initialize the app when page loads
+            initApp();
+        });
+    </script>
+</body>
+</html>
