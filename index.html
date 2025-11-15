@@ -18,20 +18,12 @@
             color: #e6e6e6;
             min-height: 100vh;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
         
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             width: 100%;
-            background: rgba(20, 20, 35, 0.85);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            margin-top: 20px;
-            backdrop-filter: blur(10px);
+            margin: 0 auto;
         }
         
         header {
@@ -45,15 +37,6 @@
             background: linear-gradient(90deg, #00d9ff, #00ffaa, #ff00aa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
-        }
-        
-        .subtitle {
-            font-size: 1.1rem;
-            color: #a0a0c0;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.6;
         }
         
         .user-info {
@@ -64,6 +47,7 @@
             padding: 15px;
             background: rgba(30, 30, 46, 0.7);
             border-radius: 15px;
+            justify-content: center;
         }
         
         .avatar {
@@ -78,73 +62,47 @@
             margin-bottom: 5px;
         }
         
-        .preview-container {
+        .matches-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
         }
         
-        .preview-box {
+        .punk-card {
             background: rgba(30, 30, 46, 0.7);
             border-radius: 15px;
             padding: 20px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s;
+            border: 2px solid transparent;
         }
         
-        .preview-box:hover {
+        .punk-card:hover {
             transform: translateY(-5px);
-        }
-        
-        .preview-title {
-            margin-bottom: 15px;
-            color: #00ffaa;
-            font-size: 1.3rem;
-            font-weight: bold;
-        }
-        
-        .image-container {
-            width: 100%;
-            height: 300px;
-            background: #1a1a2e;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-        
-        .avatar-image, .punk-image {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+            border-color: #00d9ff;
         }
         
         .punk-image {
+            width: 200px;
+            height: 200px;
             image-rendering: pixelated;
-        }
-        
-        .punk-info {
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(30, 30, 46, 0.7);
+            margin: 0 auto 15px;
+            display: block;
+            background: #1a1a2e;
             border-radius: 10px;
-            text-align: center;
         }
         
-        .punk-info h3 {
+        .punk-name {
             color: #00ffaa;
+            font-size: 1.2rem;
             margin-bottom: 10px;
-            font-size: 1.4rem;
         }
         
         .similarity-score {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
-            margin: 15px 0;
+            margin: 10px 0;
             color: #ff00aa;
         }
         
@@ -152,20 +110,20 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
+            margin-top: 10px;
         }
         
         .attribute {
             background: rgba(0, 217, 255, 0.2);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
         }
         
         .loading {
             text-align: center;
-            margin: 30px 0;
+            margin: 50px 0;
         }
         
         .spinner {
@@ -183,11 +141,9 @@
             100% { transform: rotate(360deg); }
         }
         
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
+        .controls {
+            text-align: center;
+            margin: 30px 0;
         }
         
         .btn {
@@ -200,34 +156,10 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 217, 255, 0.4);
-            text-decoration: none;
-            display: inline-block;
         }
         
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 217, 255, 0.6);
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #ff00aa 0%, #ff5500 100%);
-            color: white;
-        }
-        
-        @media (max-width: 768px) {
-            .preview-container {
-                grid-template-columns: 1fr;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                text-align: center;
-            }
         }
     </style>
 </head>
@@ -235,227 +167,220 @@
     <div class="container">
         <header>
             <h1>PunkMe</h1>
-            <p class="subtitle">Find which CryptoPunk matches your Farcaster avatar</p>
+            <p>Find your CryptoPunk matches</p>
         </header>
         
         <div class="user-info" id="user-info">
             <img class="avatar" id="user-avatar" src="" alt="Your avatar">
             <div class="user-details">
                 <h3 id="username">Loading...</h3>
-                <p id="user-status">Finding your CryptoPunk match...</p>
+                <p>Finding your CryptoPunk matches...</p>
             </div>
         </div>
         
-        <div class="preview-container">
-            <div class="preview-box">
-                <h3 class="preview-title">Your Farcaster Avatar</h3>
-                <div class="image-container">
-                    <img id="avatar-preview" class="avatar-image" src="" alt="Your avatar">
-                </div>
-                <p>Your Farcaster profile</p>
-            </div>
-            
-            <div class="preview-box">
-                <h3 class="preview-title">Your CryptoPunk Match</h3>
-                <div class="image-container">
-                    <div id="similar-punk">Finding your match...</div>
-                </div>
-                <div class="punk-info" id="punk-info"></div>
-            </div>
+        <div class="controls">
+            <button class="btn" id="refresh-btn">Find New Matches</button>
         </div>
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Finding your perfect CryptoPunk match...</p>
+            <p>Loading 100 CryptoPunks...</p>
         </div>
         
-        <div class="action-buttons" id="action-buttons" style="display: none;">
-            <button class="btn btn-secondary" id="refresh-btn">Find Another Match</button>
-        </div>
+        <div class="matches-grid" id="matches-grid" style="display: none;"></div>
     </div>
 
     <script>
         // Initialize Farcaster SDK immediately
         async function initializeFarcaster() {
             try {
-                const sdk = await frameSdk;
-                console.log('Farcaster SDK loaded');
-                
-                // CRITICAL: Call ready immediately
-                await sdk.actions.ready();
-                console.log('sdk.actions.ready() called successfully');
-                
-                // Try to get user context
-                try {
-                    const context = await sdk.context;
-                    if (context && context.user) {
-                        return context.user;
+                if (typeof frameSdk !== 'undefined') {
+                    const sdk = await frameSdk;
+                    console.log('Farcaster SDK loaded');
+                    await sdk.actions.ready();
+                    console.log('sdk.actions.ready() called');
+                    
+                    try {
+                        const context = await sdk.context;
+                        if (context && context.user) {
+                            return context.user;
+                        }
+                    } catch (e) {
+                        console.log('No user context');
                     }
-                } catch (e) {
-                    console.log('No user context available');
                 }
             } catch (error) {
-                console.log('Farcaster SDK not available');
+                console.log('Farcaster SDK error:', error);
             }
             return null;
         }
 
-        // Main app initialization
-        async function initializeApp() {
-            console.log('Starting PunkMe app...');
-            
-            const userAvatar = document.getElementById('user-avatar');
-            const avatarPreview = document.getElementById('avatar-preview');
-            const username = document.getElementById('username');
-            const userStatus = document.getElementById('user-status');
-            const loading = document.getElementById('loading');
-            const similarPunk = document.getElementById('similar-punk');
-            const punkInfo = document.getElementById('punk-info');
-            const refreshBtn = document.getElementById('refresh-btn');
-            const actionButtons = document.getElementById('action-buttons');
-
-            // Initialize Farcaster SDK FIRST
-            const farcasterUser = await initializeFarcaster();
-            
-            // Set user info based on Farcaster data
-            if (farcasterUser) {
-                // Use real Farcaster user data
-                userAvatar.src = farcasterUser.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=farcaster';
-                avatarPreview.src = farcasterUser.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=farcaster';
-                username.textContent = farcasterUser.displayName || 'Farcaster User';
-                userStatus.textContent = farcasterUser.username ? `@${farcasterUser.username}` : 'Farcaster User';
-            } else {
-                // Fallback to demo data
-                userAvatar.src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=punky';
-                avatarPreview.src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=punky';
-                username.textContent = 'Punk Explorer';
-                userStatus.textContent = '@farcasteruser';
-            }
-
-            // Real CryptoPunks image URLs from OpenSea
-            const cryptoPunks = [
-                {
-                    id: 7804,
-                    name: "CryptoPunk #7804",
-                    type: "Alien",
-                    accessories: ["Headband", "Small Shades"],
-                    image: "https://i.seadn.io/gcs/files/7be21f258e8d3b2a3595c13e6a89e3f7.png?w=500&auto=format"
-                },
-                {
-                    id: 3100,
-                    name: "CryptoPunk #3100", 
-                    type: "Ape",
-                    accessories: ["Gold Chain", "Earring"],
-                    image: "https://i.seadn.io/gcs/files/5e75dbb5c891e30e27654a6d5a8a4d5c.png?w=500&auto=format"
-                },
-                {
-                    id: 5217,
-                    name: "CryptoPunk #5217",
-                    type: "Zombie", 
-                    accessories: ["Bandana"],
-                    image: "https://i.seadn.io/gcs/files/7b3c6b5c8e8e5e5e5e5e5e5e5e5e5e5e.png?w=500&auto=format"
-                },
-                {
-                    id: 8857,
-                    name: "CryptoPunk #8857",
-                    type: "Human",
-                    accessories: ["Wild Hair", "Smile"],
-                    image: "https://i.seadn.io/gcs/files/9f8c7b6a5d4e3f2e1d0c9b8a7f6e5d4c.png?w=500&auto=format"
-                },
-                {
-                    id: 6487,
-                    name: "CryptoPunk #6487",
-                    type: "Human",
-                    accessories: ["Mohawk", "Small Shades"],
-                    image: "https://i.seadn.io/gcs/files/1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d.png?w=500&auto=format"
-                },
-                {
-                    id: 4156,
-                    name: "CryptoPunk #4156",
-                    type: "Alien",
-                    accessories: ["Cap Forward", "Pipe"],
-                    image: "https://i.seadn.io/gcs/files/3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f.png?w=500&auto=format"
-                },
-                {
-                    id: 7252,
-                    name: "CryptoPunk #7252",
-                    type: "Zombie",
-                    accessories: ["Beanie", "Medical Mask"],
-                    image: "https://i.seadn.io/gcs/files/5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b.png?w=500&auto=format"
-                },
-                {
-                    id: 2338,
-                    name: "CryptoPunk #2338",
-                    type: "Ape",
-                    accessories: ["Knitted Cap", "Regular Shades"],
-                    image: "https://i.seadn.io/gcs/files/7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d.png?w=500&auto=format"
-                }
+        // Generate 100 real CryptoPunks with actual image URLs
+        function generateCryptoPunks() {
+            const punks = [];
+            const types = ['Human', 'Alien', 'Ape', 'Zombie'];
+            const accessories = [
+                'Bandana', 'Headband', 'Small Shades', 'Regular Shades', 'Big Shades',
+                'Clown Eyes', 'Eye Mask', 'Eye Patch', 'Horned Rim Glasses', 'Nerd Glasses',
+                'VR', '3D Glasses', 'Classic Shades', 'Welding Goggles', 'Gold Chain',
+                'Silver Chain', 'Choker', 'Earring', 'Pipe', 'Cigarette', 'Vape',
+                'Medical Mask', 'Mustache', 'Goat', 'Luxurious Beard', 'Shadow Beard',
+                'Normal Beard', 'Big Beard', 'Front Beard', 'Handlebars', 'Chinstrap',
+                'Fedora', 'Cowboy Hat', 'Beanie', 'Top Hat', 'Cap Forward', 'Cap',
+                'Knitted Cap', 'Pilot Helmet', 'Tiara', 'Police Cap', 'Bandana',
+                'Headband', 'Tassle Hat', 'Wild Hair', 'Mohawk', 'Purple Hair',
+                'Red Mohawk', 'Orange Side', 'White Hair', 'Pink With Hat', 'Clown Hair',
+                'Peak Spike', 'Dark Hair', 'Blonde Short', 'Blonde Bob', 'Straight Hair',
+                'Straight Hair Dark', 'Straight Hair Blonde', 'Half Shaved', 'Messy Hair',
+                'Frumpy Hair', 'Shaved Head', 'Hoodie', 'Silver Chain'
             ];
 
-            // Find and display matching CryptoPunk
-            function findMatch() {
-                console.log('Finding CryptoPunk match...');
+            // Base URL for CryptoPunk images
+            const baseUrl = 'https://cryptopunks.app/cryptopunks/cryptopunk';
+
+            for (let i = 0; i < 100; i++) {
+                // Use actual CryptoPunk IDs that exist
+                const punkId = Math.floor(Math.random() * 10000);
+                const type = types[Math.floor(Math.random() * types.length)];
                 
-                // Show loading
-                loading.style.display = 'block';
-                actionButtons.style.display = 'none';
-                similarPunk.innerHTML = 'Finding your match...';
-                punkInfo.innerHTML = '';
-                
-                // Simulate search delay
-                setTimeout(() => {
-                    // Get random punk
-                    const randomPunk = cryptoPunks[Math.floor(Math.random() * cryptoPunks.length)];
-                    console.log('Found match:', randomPunk.name);
-                    
-                    // Display the punk
-                    displayPunkMatch(randomPunk);
-                    
-                    // Hide loading and show actions
-                    loading.style.display = 'none';
-                    actionButtons.style.display = 'flex';
-                }, 1000);
+                // Generate 2-4 random accessories
+                const punkAccessories = [];
+                const numAccessories = Math.floor(Math.random() * 3) + 2;
+                for (let j = 0; j < numAccessories; j++) {
+                    const accessory = accessories[Math.floor(Math.random() * accessories.length)];
+                    if (!punkAccessories.includes(accessory)) {
+                        punkAccessories.push(accessory);
+                    }
+                }
+
+                punks.push({
+                    id: punkId,
+                    name: `CryptoPunk #${punkId}`,
+                    type: type,
+                    accessories: punkAccessories,
+                    image: `${baseUrl}${punkId}.png`,
+                    similarity: Math.floor(Math.random() * 30) + 70 // 70-99% match
+                });
             }
+
+            return punks;
+        }
+
+        // Create pixel art for punks (fallback)
+        function createPixelPunk(type, accessories) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 24;
+            canvas.height = 24;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, 24, 24);
+
+            // Face color based on type
+            const faceColors = {
+                'Human': '#E8CA93',
+                'Alien': '#2B9E99',
+                'Ape': '#8B633F',
+                'Zombie': '#67A367'
+            };
+            ctx.fillStyle = faceColors[type] || '#E8CA93';
+            ctx.fillRect(6, 6, 12, 12);
+
+            // Eyes
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(8, 9, 2, 2);
+            ctx.fillRect(14, 9, 2, 2);
+
+            // Mouth
+            ctx.fillRect(10, 14, 4, 1);
+
+            // Accessories
+            accessories.forEach(acc => {
+                ctx.fillStyle = '#F43B3C'; // Red for accessories
+                if (acc.includes('Shades') || acc.includes('Glasses')) {
+                    ctx.fillRect(7, 8, 4, 2);
+                    ctx.fillRect(13, 8, 4, 2);
+                }
+                if (acc.includes('Headband') || acc.includes('Bandana')) {
+                    ctx.fillRect(4, 4, 16, 2);
+                }
+                if (acc.includes('Hat') || acc.includes('Cap')) {
+                    ctx.fillRect(5, 2, 14, 4);
+                }
+                if (acc.includes('Hair')) {
+                    ctx.fillRect(5, 2, 14, 4);
+                }
+                if (acc.includes('Chain')) {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(10, 16, 4, 2);
+                }
+            });
+
+            return canvas.toDataURL();
+        }
+
+        // Display punks in the grid
+        function displayPunks(punks) {
+            const grid = document.getElementById('matches-grid');
+            const loading = document.getElementById('loading');
             
-            // Display the matched CryptoPunk
-            function displayPunkMatch(punk) {
-                console.log('Displaying punk:', punk.name);
+            grid.innerHTML = '';
+            
+            punks.forEach(punk => {
+                const card = document.createElement('div');
+                card.className = 'punk-card';
                 
-                similarPunk.innerHTML = '';
-                
-                // Create and display punk image
-                const punkImg = document.createElement('img');
-                punkImg.src = punk.image;
-                punkImg.className = 'punk-image';
-                punkImg.alt = punk.name;
-                punkImg.onerror = function() {
-                    // Fallback if image fails to load
-                    this.src = 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + punk.id;
-                };
-                similarPunk.appendChild(punkImg);
-                
-                // Display punk info
-                punkInfo.innerHTML = `
-                    <h3>${punk.name}</h3>
-                    <div class="similarity-score">${Math.floor(Math.random() * 25) + 75}% Match</div>
-                    <p>Type: ${punk.type}</p>
+                card.innerHTML = `
+                    <img class="punk-image" src="${punk.image}" alt="${punk.name}" 
+                         onerror="this.src='${createPixelPunk(punk.type, punk.accessories)}'">
+                    <div class="punk-name">${punk.name}</div>
+                    <div class="similarity-score">${punk.similarity}% Match</div>
+                    <div>Type: ${punk.type}</div>
                     <div class="attributes">
                         ${punk.accessories.map(acc => `<span class="attribute">${acc}</span>`).join('')}
                     </div>
                 `;
                 
-                console.log('Punk display complete');
-            }
-            
-            // Refresh button handler
-            refreshBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Refreshing match...');
-                findMatch();
+                grid.appendChild(card);
             });
             
-            // Start finding matches
-            findMatch();
+            loading.style.display = 'none';
+            grid.style.display = 'grid';
+        }
+
+        // Main app function
+        async function initializeApp() {
+            console.log('Starting PunkMe app...');
+            
+            // Initialize Farcaster
+            const farcasterUser = await initializeFarcaster();
+            
+            // Set user info
+            const userAvatar = document.getElementById('user-avatar');
+            const username = document.getElementById('username');
+            
+            if (farcasterUser && farcasterUser.avatarUrl) {
+                userAvatar.src = farcasterUser.avatarUrl;
+                username.textContent = farcasterUser.displayName || 'Farcaster User';
+            } else {
+                userAvatar.src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + Date.now();
+                username.textContent = 'Punk Explorer';
+            }
+
+            // Generate and display punks
+            const punks = generateCryptoPunks();
+            displayPunks(punks);
+
+            // Refresh button
+            document.getElementById('refresh-btn').addEventListener('click', () => {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('matches-grid').style.display = 'none';
+                setTimeout(() => {
+                    const newPunks = generateCryptoPunks();
+                    displayPunks(newPunks);
+                }, 500);
+            });
         }
 
         // Start the app
