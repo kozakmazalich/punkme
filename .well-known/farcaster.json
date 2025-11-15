@@ -3,8 +3,7 @@
     "header": "eyJmaWQiOjUwMjE3NywidHlwZSI6ImF1dGgiLCJrZXkiOiIweDI4ZTBBZWViNTY5ZjA1RUQ0Y2Y5NmE4M0Y0RjBFMTE1NzdCZTc5MUEifQ",
     "payload": "eyJkb21haW4iOiJwdW5rbWUudmVyY2VsLmFwcCJ9",
     "signature": "aTVIhBK3qJfSnEaD4VqAUOOJaGvpQqK6O0iPS7HXQe8au+6wLyqO4ewtrjo8OSRpo+VxQenGTvUU7u+bswneyxw="
-  }
-},
+  },
   "baseBuilder": {
     "allowedAddresses": ["0x0A4e5886f09997a3c71767736bb0c33D43a12B39"]
   },
@@ -21,3 +20,4 @@
     "primaryCategory": "nft",
     "tags": ["cryptopunks", "nft", "avatar", "opensea", "ethereum", "punk"]
   }
+}
