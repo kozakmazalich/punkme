@@ -1,21 +1,24 @@
+
 {
   "accountAssociation": {
-    
+    "header": "eyJmaWQiOjUwMjE3NywidHlwZSI6ImF1dGgiLCJrZXkiOiIweDI4ZTBBZWViNTY5ZjA1RUQ0Y2Y5NmE4M0Y0RjBFMTE1NzdCZTc5MUEifQ",
+    "payload": "eyJkb21haW4iOiJwdW5rbWUudmVyY2VsLmFwcCJ9",
+    "signature": "Ie/qxfZvz3lfh4QuS/XTmMc+tV25r68/1U/er5igcN4VB89MxPlzba4PV3HPMb7AYT1oIIBIF3F99u58xLzx0Bw="
   },
   "baseBuilder": {
     "allowedAddresses": ["0x0A4e5886f09997a3c71767736bb0c33D43a12B39"]
   },
   "miniapp": {
     "version": "1",
-    "name": "CryptoPunk Avatar Finder",
+    "name": "PunkMe",
     "subtitle": "Find your CryptoPunk match",
     "description": "Automatically find which CryptoPunk NFT matches your Farcaster avatar with real pricing from OpenSea.",
-    "iconUrl": "https://farcaster-cryptopunk-finder.vercel.app/icon.png",
-    "imageUrl": "https://farcaster-cryptopunk-finder.vercel.app/preview.png",
-    "splashImageUrl": "https://farcaster-cryptopunk-finder.vercel.app/splash.png",
+    "iconUrl": "https://punkme.vercel.app/icon.png",
+    "imageUrl": "https://punkme.vercel.app/preview.png",
+    "splashImageUrl": "https://punkme.vercel.app/splash.png",
     "splashBackgroundColor": "#0f0c29",
-    "homeUrl": "https://farcaster-cryptopunk-finder.vercel.app/",
+    "homeUrl": "https://punkme.vercel.app/",
     "primaryCategory": "nft",
-    "tags": ["cryptopunks", "nft", "avatar", "opensea", "ethereum"]
+    "tags": ["cryptopunks", "nft", "avatar", "opensea", "ethereum", "punk"]
   }
 }
