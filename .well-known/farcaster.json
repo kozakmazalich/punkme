@@ -17,7 +17,7 @@
     "splashImageUrl": "https://punkme.vercel.app/splash.png",
     "splashBackgroundColor": "#0f0c29",
     "homeUrl": "https://punkme.vercel.app/",
-    "primaryCategory": "nft",
-    "tags": ["cryptopunks", "nft", "avatar", "opensea", "ethereum", "punk"]
+    "primaryCategory": "art-creativity",
+    "tags": ["punk"]
   }
 }
