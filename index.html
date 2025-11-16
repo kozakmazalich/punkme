@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CryptoPunk Avatar Matcher</title>
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster-connect/w3m-connector@0.0.6/dist/w3m-connector.umd.min.js"></script>
     <style>
         :root {
             --primary: #8a63d2;
@@ -30,6 +31,7 @@
             padding: 16px;
             max-width: 400px;
             margin: 0 auto;
+            min-height: 100vh;
         }
         
         .container {
@@ -100,6 +102,7 @@
             color: var(--text-secondary);
             font-size: 14px;
             text-align: center;
+            padding: 10px;
         }
         
         .button {
@@ -236,6 +239,16 @@
             margin-top: 10px;
         }
         
+        .success-message {
+            color: var(--success);
+            background-color: rgba(16, 185, 129, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
         .hidden {
             display: none;
         }
@@ -245,6 +258,96 @@
             color: var(--text-secondary);
             font-size: 12px;
             margin-top: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background-color: rgba(138, 99, 210, 0.1);
+            border-radius: 8px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            object-fit: cover;
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .user-username {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .manual-avatar-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .manual-input {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .manual-input input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background-color: var(--background);
+            color: var(--text);
+            font-size: 14px;
+        }
+        
+        .manual-input button {
+            padding: 10px 16px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .avatar-options {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 12px;
+        }
+        
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        
+        .avatar-option:hover {
+            border-color: var(--primary);
+        }
+        
+        .avatar-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -257,17 +360,45 @@
         
         <div class="card">
             <div class="avatar-section">
+                <div id="userInfo" class="user-info hidden">
+                    <img id="userAvatar" class="user-avatar" alt="User Avatar">
+                    <div class="user-details">
+                        <div class="user-name" id="userDisplayName">User Name</div>
+                        <div class="user-username" id="userUsername">@username</div>
+                    </div>
+                </div>
+                
                 <div class="avatar-container" id="avatarContainer">
                     <div class="avatar-placeholder" id="avatarPlaceholder">
                         Your Farcaster Avatar
                     </div>
                     <img id="avatarImage" class="avatar-image hidden" alt="Your Farcaster Avatar">
                 </div>
-                <button id="findMatchButton" class="button">
+                
+                <button id="findMatchButton" class="button" disabled>
                     <span class="loading hidden" id="loadingIndicator"></span>
-                    <span id="buttonText">Find My CryptoPunk Match</span>
+                    <span id="buttonText">Initializing...</span>
                 </button>
+                
                 <div id="errorMessage" class="error-message hidden"></div>
+                <div id="successMessage" class="success-message hidden"></div>
+                
+                <div class="manual-avatar-section">
+                    <p style="text-align: center; color: var(--text-secondary); margin-bottom: 12px; font-size: 14px;">
+                        Or use a sample avatar:
+                    </p>
+                    <div class="avatar-options">
+                        <div class="avatar-option" data-avatar="https://i.imgur.com/5E6Q0yH.png">
+                            <img src="https://i.imgur.com/5E6Q0yH.png" alt="Sample Avatar 1">
+                        </div>
+                        <div class="avatar-option" data-avatar="https://i.imgur.com/k7UdwqL.png">
+                            <img src="https://i.imgur.com/k7UdwqL.png" alt="Sample Avatar 2">
+                        </div>
+                        <div class="avatar-option" data-avatar="https://i.imgur.com/3J8m3f5.png">
+                            <img src="https://i.imgur.com/3J8m3f5.png" alt="Sample Avatar 3">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -296,6 +427,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // DOM elements
+            const userInfo = document.getElementById('userInfo');
+            const userAvatar = document.getElementById('userAvatar');
+            const userDisplayName = document.getElementById('userDisplayName');
+            const userUsername = document.getElementById('userUsername');
             const avatarContainer = document.getElementById('avatarContainer');
             const avatarPlaceholder = document.getElementById('avatarPlaceholder');
             const avatarImage = document.getElementById('avatarImage');
@@ -303,6 +438,7 @@
             const buttonText = document.getElementById('buttonText');
             const loadingIndicator = document.getElementById('loadingIndicator');
             const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
             const resultCard = document.getElementById('resultCard');
             const punkPlaceholder = document.getElementById('punkPlaceholder');
             const punkImage = document.getElementById('punkImage');
@@ -310,57 +446,79 @@
             const punkId = document.getElementById('punkId');
             const similarityScore = document.getElementById('similarityScore');
             const openseaLink = document.getElementById('openseaLink');
+            const avatarOptions = document.querySelectorAll('.avatar-option');
             
-            // Try to get Farcaster user data
-            let userData = null;
+            // Farcaster SDK initialization
+            let farcasterUser = null;
             
-            // In a real Farcaster mini-app, we would get this from the Farcaster client
-            // For demo purposes, we'll simulate getting user data
-            function getFarcasterUserData() {
-                // This is a simulation - in a real Farcaster mini-app, we would use:
-                // window.farcaster?.user or similar API
-                
-                // For demo, we'll return mock data
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        // Simulate successful user data retrieval 80% of the time
-                        if (Math.random() > 0.2) {
-                            resolve({
-                                username: 'vitalik',
-                                displayName: 'Vitalik Buterin',
-                                avatarUrl: 'https://i.imgur.com/5E6Q0yH.png' // Example avatar
-                            });
-                        } else {
-                            resolve(null); // Simulate no user data available
-                        }
-                    }, 500);
-                });
-            }
-            
-            // Load user avatar
-            async function loadUserAvatar() {
+            // Initialize Farcaster SDK
+            async function initializeFarcaster() {
                 try {
-                    userData = await getFarcasterUserData();
-                    
-                    if (userData && userData.avatarUrl) {
-                        avatarPlaceholder.classList.add('hidden');
-                        avatarImage.src = userData.avatarUrl;
-                        avatarImage.classList.remove('hidden');
+                    // Check if we're in a Farcaster client
+                    if (window.farcaster) {
+                        console.log("Farcaster SDK detected, initializing...");
+                        
+                        // Call ready() to indicate the app is ready
+                        await window.farcaster.actions.ready();
+                        console.log("Farcaster SDK ready() called successfully");
+                        
+                        // Get user context
+                        const context = await window.farcaster.getContext();
+                        console.log("Farcaster context:", context);
+                        
+                        if (context && context.user) {
+                            farcasterUser = context.user;
+                            displayUserInfo(farcasterUser);
+                            showSuccess("Farcaster user detected successfully!");
+                            enableApp();
+                        } else {
+                            throw new Error("No user data available");
+                        }
                     } else {
-                        showError('Unable to load your Farcaster avatar. Please make sure you are using the Farcaster client.');
-                        findMatchButton.disabled = true;
+                        // Not in Farcaster client, enable manual mode
+                        console.log("Not in Farcaster client, enabling manual mode");
+                        enableManualMode();
                     }
                 } catch (error) {
-                    console.error('Error loading user avatar:', error);
-                    showError('Error loading your Farcaster avatar.');
-                    findMatchButton.disabled = true;
+                    console.error("Error initializing Farcaster:", error);
+                    showError("Failed to connect to Farcaster. Using manual mode.");
+                    enableManualMode();
                 }
+            }
+            
+            // Display user information
+            function displayUserInfo(user) {
+                userInfo.classList.remove('hidden');
+                userDisplayName.textContent = user.displayName || 'Farcaster User';
+                userUsername.textContent = `@${user.username}`;
+                
+                if (user.avatarUrl) {
+                    userAvatar.src = user.avatarUrl;
+                    avatarPlaceholder.classList.add('hidden');
+                    avatarImage.src = user.avatarUrl;
+                    avatarImage.classList.remove('hidden');
+                }
+            }
+            
+            // Enable the app for use
+            function enableApp() {
+                findMatchButton.disabled = false;
+                buttonText.textContent = 'Find My CryptoPunk Match';
+            }
+            
+            // Enable manual mode (when not in Farcaster client)
+            function enableManualMode() {
+                findMatchButton.disabled = false;
+                buttonText.textContent = 'Find Matching CryptoPunk';
+                showSuccess("You can use sample avatars or manually enter an image URL");
             }
             
             // Find matching CryptoPunk
             async function findMatchingPunk() {
-                if (!userData || !userData.avatarUrl) {
-                    showError('No avatar available to match.');
+                const currentAvatar = avatarImage.src;
+                
+                if (!currentAvatar || currentAvatar.includes('data:image/svg+xml')) {
+                    showError('Please select an avatar first.');
                     return;
                 }
                 
@@ -369,13 +527,14 @@
                 loadingIndicator.classList.remove('hidden');
                 buttonText.textContent = 'Finding your match...';
                 hideError();
+                hideSuccess();
                 
                 try {
                     // In a real implementation, we would send the avatar image to a server
                     // that compares it with CryptoPunks and returns the best match
                     // For this demo, we'll simulate the API call
                     
-                    const matchResult = await simulatePunkMatching(userData.avatarUrl);
+                    const matchResult = await simulatePunkMatching(currentAvatar);
                     
                     // Display the result
                     displayMatchResult(matchResult);
@@ -387,7 +546,7 @@
                     // Reset button state
                     findMatchButton.disabled = false;
                     loadingIndicator.classList.add('hidden');
-                    buttonText.textContent = 'Find My CryptoPunk Match';
+                    buttonText.textContent = farcasterUser ? 'Find My CryptoPunk Match' : 'Find Matching CryptoPunk';
                 }
             }
             
@@ -402,7 +561,7 @@
                         const similarity = Math.floor(Math.random() * 25) + 70;
                         
                         // Punk image URL (using a placeholder service for demo)
-                        const punkImageUrl = `https://via.placeholder.com/200/8a63d2/FFFFFF?text=Punk+${punkId}`;
+                        const punkImageUrl = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${punkId}&size=200`;
                         
                         resolve({
                             id: punkId,
@@ -432,10 +591,23 @@
                 resultCard.scrollIntoView({ behavior: 'smooth' });
             }
             
+            // Set manual avatar
+            function setManualAvatar(avatarUrl) {
+                avatarPlaceholder.classList.add('hidden');
+                avatarImage.src = avatarUrl;
+                avatarImage.classList.remove('hidden');
+                hideError();
+                
+                if (!farcasterUser) {
+                    showSuccess("Avatar set successfully!");
+                }
+            }
+            
             // Show error message
             function showError(message) {
                 errorMessage.textContent = message;
                 errorMessage.classList.remove('hidden');
+                successMessage.classList.add('hidden');
             }
             
             // Hide error message
@@ -443,11 +615,31 @@
                 errorMessage.classList.add('hidden');
             }
             
+            // Show success message
+            function showSuccess(message) {
+                successMessage.textContent = message;
+                successMessage.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+            }
+            
+            // Hide success message
+            function hideSuccess() {
+                successMessage.classList.add('hidden');
+            }
+            
             // Event listeners
             findMatchButton.addEventListener('click', findMatchingPunk);
             
+            // Avatar option click handlers
+            avatarOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const avatarUrl = this.getAttribute('data-avatar');
+                    setManualAvatar(avatarUrl);
+                });
+            });
+            
             // Initialize the app
-            loadUserAvatar();
+            initializeFarcaster();
         });
     </script>
 </body>
