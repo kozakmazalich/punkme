@@ -3,35 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoPunk Avatar Matcher</title>
-    <script src="https://cdn.jsdelivr.net/npm/@farcaster-connect/w3m-connector@0.0.6/dist/w3m-connector.umd.min.js"></script>
+    <title>PunkMatch - Find Your CryptoPunk</title>
     <style>
-        :root {
-            --primary: #8a63d2;
-            --primary-dark: #6b46c1;
-            --background: #1a1a1a;
-            --surface: #2d2d2d;
-            --text: #ffffff;
-            --text-secondary: #a0a0a0;
-            --border: #404040;
-            --success: #10b981;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
         body {
-            background-color: var(--background);
-            color: var(--text);
-            line-height: 1.5;
-            padding: 16px;
+            background: #000;
+            color: white;
+            padding: 20px;
             max-width: 400px;
             margin: 0 auto;
-            min-height: 100vh;
         }
         
         .container {
@@ -42,48 +28,44 @@
         
         header {
             text-align: center;
-            margin-bottom: 10px;
+            padding: 20px 0;
         }
         
         h1 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            background: linear-gradient(90deg, #8a63d2, #6b46c1);
+            font-size: 28px;
+            background: linear-gradient(45deg, #8B5CF6, #EC4899);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
         }
         
         .subtitle {
-            color: var(--text-secondary);
+            color: #888;
             font-size: 14px;
         }
         
         .card {
-            background-color: var(--surface);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--border);
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 24px;
         }
         
         .avatar-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
+            text-align: center;
         }
         
         .avatar-container {
             width: 120px;
             height: 120px;
             border-radius: 60px;
+            border: 3px solid #8B5CF6;
+            margin: 0 auto 20px;
             overflow: hidden;
-            border: 3px solid var(--primary);
+            background: #222;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #3a3a3a;
         }
         
         .avatar-image {
@@ -93,63 +75,64 @@
         }
         
         .avatar-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #3a3a3a;
-            color: var(--text-secondary);
-            font-size: 14px;
+            color: #666;
+            font-size: 12px;
             text-align: center;
-            padding: 10px;
+            padding: 20px;
         }
         
-        .button {
-            background-color: var(--primary);
+        .btn {
+            background: #8B5CF6;
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
+            border-radius: 12px;
+            padding: 16px 24px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
             width: 100%;
+            transition: all 0.2s;
         }
         
-        .button:hover {
-            background-color: var(--primary-dark);
+        .btn:hover {
+            background: #7C3AED;
             transform: translateY(-1px);
         }
         
-        .button:active {
-            transform: translateY(0);
-        }
-        
-        .button:disabled {
-            background-color: var(--border);
+        .btn:disabled {
+            background: #333;
             cursor: not-allowed;
             transform: none;
         }
         
-        .punk-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result-section {
+            text-align: center;
         }
         
         .punk-container {
             width: 200px;
             height: 200px;
-            border-radius: 8px;
+            border-radius: 12px;
+            border: 2px solid #333;
+            margin: 0 auto 20px;
             overflow: hidden;
-            border: 2px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #3a3a3a;
+            background: #222;
         }
         
         .punk-image {
@@ -158,489 +141,313 @@
             object-fit: cover;
         }
         
-        .punk-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #3a3a3a;
-            color: var(--text-secondary);
-            font-size: 14px;
-            text-align: center;
-        }
-        
         .punk-info {
-            text-align: center;
-            width: 100%;
+            margin-bottom: 20px;
         }
         
         .punk-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .punk-id {
-            color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 20px;
+            font-weight: bold;
             margin-bottom: 8px;
         }
         
         .similarity {
             display: inline-block;
-            background-color: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
+            background: #10B981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
             font-weight: 600;
         }
         
-        .view-on-opensea {
+        .opensea-link {
             display: inline-block;
-            background-color: #2081e2;
+            background: #2081E2;
             color: white;
             text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            margin-top: 8px;
-            transition: background-color 0.2s;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: background 0.2s;
         }
         
-        .view-on-opensea:hover {
-            background-color: #1868b7;
+        .opensea-link:hover {
+            background: #1868B7;
         }
         
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .error-message {
-            color: #ef4444;
-            background-color: rgba(239, 68, 68, 0.1);
+        .error {
+            background: #EF4444;
+            color: white;
             padding: 12px;
             border-radius: 8px;
+            margin-top: 12px;
             font-size: 14px;
-            text-align: center;
-            margin-top: 10px;
         }
         
-        .success-message {
-            color: var(--success);
-            background-color: rgba(16, 185, 129, 0.1);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            text-align: center;
-            margin-top: 10px;
+        .manual-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+        
+        .sample-avatars {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+        
+        .sample-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .sample-avatar:hover {
+            border-color: #8B5CF6;
+            transform: scale(1.1);
         }
         
         .hidden {
             display: none;
-        }
-        
-        footer {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 12px;
-            margin-top: 20px;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-            padding: 12px;
-            background-color: rgba(138, 99, 210, 0.1);
-            border-radius: 8px;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            object-fit: cover;
-        }
-        
-        .user-details {
-            flex: 1;
-        }
-        
-        .user-name {
-            font-weight: 600;
-            font-size: 16px;
-        }
-        
-        .user-username {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        
-        .manual-avatar-section {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border);
-        }
-        
-        .manual-input {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        
-        .manual-input input {
-            flex: 1;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background-color: var(--background);
-            color: var(--text);
-            font-size: 14px;
-        }
-        
-        .manual-input button {
-            padding: 10px 16px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .avatar-options {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 12px;
-        }
-        
-        .avatar-option {
-            width: 60px;
-            height: 60px;
-            border-radius: 30px;
-            overflow: hidden;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: border-color 0.2s;
-        }
-        
-        .avatar-option:hover {
-            border-color: var(--primary);
-        }
-        
-        .avatar-option img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>CryptoPunk Avatar Matcher</h1>
-            <p class="subtitle">Find which CryptoPunk looks most like your Farcaster avatar</p>
+            <h1>PunkMatch</h1>
+            <p class="subtitle">Find your CryptoPunk twin</p>
         </header>
         
         <div class="card">
             <div class="avatar-section">
-                <div id="userInfo" class="user-info hidden">
-                    <img id="userAvatar" class="user-avatar" alt="User Avatar">
-                    <div class="user-details">
-                        <div class="user-name" id="userDisplayName">User Name</div>
-                        <div class="user-username" id="userUsername">@username</div>
-                    </div>
-                </div>
-                
-                <div class="avatar-container" id="avatarContainer">
+                <div class="avatar-container">
                     <div class="avatar-placeholder" id="avatarPlaceholder">
                         Your Farcaster Avatar
                     </div>
-                    <img id="avatarImage" class="avatar-image hidden" alt="Your Farcaster Avatar">
+                    <img id="avatarImage" class="avatar-image hidden" alt="Avatar">
                 </div>
                 
-                <button id="findMatchButton" class="button" disabled>
-                    <span class="loading hidden" id="loadingIndicator"></span>
-                    <span id="buttonText">Initializing...</span>
+                <button id="findPunkBtn" class="btn" disabled>
+                    <span class="loading hidden" id="loading"></span>
+                    <span id="btnText">Initializing...</span>
                 </button>
                 
-                <div id="errorMessage" class="error-message hidden"></div>
-                <div id="successMessage" class="success-message hidden"></div>
+                <div id="error" class="error hidden"></div>
                 
-                <div class="manual-avatar-section">
-                    <p style="text-align: center; color: var(--text-secondary); margin-bottom: 12px; font-size: 14px;">
-                        Or use a sample avatar:
-                    </p>
-                    <div class="avatar-options">
-                        <div class="avatar-option" data-avatar="https://i.imgur.com/5E6Q0yH.png">
-                            <img src="https://i.imgur.com/5E6Q0yH.png" alt="Sample Avatar 1">
-                        </div>
-                        <div class="avatar-option" data-avatar="https://i.imgur.com/k7UdwqL.png">
-                            <img src="https://i.imgur.com/k7UdwqL.png" alt="Sample Avatar 2">
-                        </div>
-                        <div class="avatar-option" data-avatar="https://i.imgur.com/3J8m3f5.png">
-                            <img src="https://i.imgur.com/3J8m3f5.png" alt="Sample Avatar 3">
-                        </div>
+                <div class="manual-section">
+                    <p style="color: #666; font-size: 14px; margin-bottom: 12px;">Or try with sample avatars:</p>
+                    <div class="sample-avatars">
+                        <img src="https://i.imgur.com/5E6Q0yH.png" class="sample-avatar" alt="Sample 1">
+                        <img src="https://i.imgur.com/k7UdwqL.png" class="sample-avatar" alt="Sample 2">
+                        <img src="https://i.imgur.com/3J8m3f5.png" class="sample-avatar" alt="Sample 3">
                     </div>
                 </div>
             </div>
         </div>
         
         <div class="card hidden" id="resultCard">
-            <div class="punk-section">
+            <div class="result-section">
                 <div class="punk-container">
-                    <div class="punk-placeholder" id="punkPlaceholder">
-                        Your CryptoPunk Match
-                    </div>
-                    <img id="punkImage" class="punk-image hidden" alt="Matched CryptoPunk">
+                    <img id="punkImage" class="punk-image" alt="Matched CryptoPunk">
                 </div>
+                
                 <div class="punk-info">
-                    <div class="punk-name" id="punkName">CryptoPunk #0000</div>
-                    <div class="punk-id" id="punkId">ID: 0000</div>
-                    <div class="similarity" id="similarityScore">85% Match</div>
-                    <a href="#" id="openseaLink" class="view-on-opensea" target="_blank">View on OpenSea</a>
+                    <div class="punk-name" id="punkName">CryptoPunk #1234</div>
+                    <div class="similarity" id="similarity">85% Match</div>
                 </div>
+                
+                <a href="#" id="openseaLink" class="opensea-link" target="_blank">View on OpenSea</a>
             </div>
         </div>
-        
-        <footer>
-            <p>Powered by Farcaster & OpenSea API</p>
-        </footer>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // DOM elements
-            const userInfo = document.getElementById('userInfo');
-            const userAvatar = document.getElementById('userAvatar');
-            const userDisplayName = document.getElementById('userDisplayName');
-            const userUsername = document.getElementById('userUsername');
-            const avatarContainer = document.getElementById('avatarContainer');
-            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
-            const avatarImage = document.getElementById('avatarImage');
-            const findMatchButton = document.getElementById('findMatchButton');
-            const buttonText = document.getElementById('buttonText');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            const errorMessage = document.getElementById('errorMessage');
-            const successMessage = document.getElementById('successMessage');
-            const resultCard = document.getElementById('resultCard');
-            const punkPlaceholder = document.getElementById('punkPlaceholder');
-            const punkImage = document.getElementById('punkImage');
-            const punkName = document.getElementById('punkName');
-            const punkId = document.getElementById('punkId');
-            const similarityScore = document.getElementById('similarityScore');
-            const openseaLink = document.getElementById('openseaLink');
-            const avatarOptions = document.querySelectorAll('.avatar-option');
-            
-            // Farcaster SDK initialization
-            let farcasterUser = null;
-            
-            // Initialize Farcaster SDK
-            async function initializeFarcaster() {
-                try {
-                    // Check if we're in a Farcaster client
-                    if (window.farcaster) {
-                        console.log("Farcaster SDK detected, initializing...");
-                        
-                        // Call ready() to indicate the app is ready
-                        await window.farcaster.actions.ready();
-                        console.log("Farcaster SDK ready() called successfully");
-                        
-                        // Get user context
-                        const context = await window.farcaster.getContext();
-                        console.log("Farcaster context:", context);
-                        
-                        if (context && context.user) {
-                            farcasterUser = context.user;
-                            displayUserInfo(farcasterUser);
-                            showSuccess("Farcaster user detected successfully!");
-                            enableApp();
-                        } else {
-                            throw new Error("No user data available");
-                        }
-                    } else {
-                        // Not in Farcaster client, enable manual mode
-                        console.log("Not in Farcaster client, enabling manual mode");
-                        enableManualMode();
-                    }
-                } catch (error) {
-                    console.error("Error initializing Farcaster:", error);
-                    showError("Failed to connect to Farcaster. Using manual mode.");
+        // DOM elements
+        const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+        const avatarImage = document.getElementById('avatarImage');
+        const findPunkBtn = document.getElementById('findPunkBtn');
+        const btnText = document.getElementById('btnText');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const resultCard = document.getElementById('resultCard');
+        const punkImage = document.getElementById('punkImage');
+        const punkName = document.getElementById('punkName');
+        const similarity = document.getElementById('similarity');
+        const openseaLink = document.getElementById('openseaLink');
+        const sampleAvatars = document.querySelectorAll('.sample-avatar');
+
+        // Current avatar URL
+        let currentAvatarUrl = null;
+
+        // Initialize the app
+        async function initializeApp() {
+            try {
+                // Try to get Farcaster user data
+                const userData = await getFarcasterUserData();
+                
+                if (userData && userData.avatarUrl) {
+                    currentAvatarUrl = userData.avatarUrl;
+                    avatarPlaceholder.classList.add('hidden');
+                    avatarImage.src = currentAvatarUrl;
+                    avatarImage.classList.remove('hidden');
+                    enableButton();
+                    showMessage('Farcaster avatar detected!', 'success');
+                } else {
+                    // No Farcaster data, enable manual mode
                     enableManualMode();
                 }
+            } catch (err) {
+                console.log('Farcaster not available, using manual mode');
+                enableManualMode();
+            }
+        }
+
+        // Get Farcaster user data
+        async function getFarcasterUserData() {
+            // Method 1: Try Farcaster SDK
+            if (typeof farcaster !== 'undefined') {
+                await farcaster.actions.ready();
+                const context = await farcaster.getContext();
+                return context?.user;
             }
             
-            // Display user information
-            function displayUserInfo(user) {
-                userInfo.classList.remove('hidden');
-                userDisplayName.textContent = user.displayName || 'Farcaster User';
-                userUsername.textContent = `@${user.username}`;
-                
-                if (user.avatarUrl) {
-                    userAvatar.src = user.avatarUrl;
-                    avatarPlaceholder.classList.add('hidden');
-                    avatarImage.src = user.avatarUrl;
-                    avatarImage.classList.remove('hidden');
-                }
+            // Method 2: Try Warpcast
+            if (typeof window?.fc !== 'undefined') {
+                const user = await window.fc.getUser();
+                return user;
             }
             
-            // Enable the app for use
-            function enableApp() {
-                findMatchButton.disabled = false;
-                buttonText.textContent = 'Find My CryptoPunk Match';
+            // Method 3: Check URL parameters (common in Farcaster frames)
+            const urlParams = new URLSearchParams(window.location.search);
+            const avatarParam = urlParams.get('avatar');
+            const userParam = urlParams.get('user');
+            
+            if (avatarParam) {
+                return {
+                    avatarUrl: avatarParam,
+                    username: userParam || 'farcaster_user'
+                };
             }
             
-            // Enable manual mode (when not in Farcaster client)
-            function enableManualMode() {
-                findMatchButton.disabled = false;
-                buttonText.textContent = 'Find Matching CryptoPunk';
-                showSuccess("You can use sample avatars or manually enter an image URL");
+            return null;
+        }
+
+        // Enable manual mode
+        function enableManualMode() {
+            enableButton();
+            showMessage('Select a sample avatar or wait for Farcaster detection', 'info');
+        }
+
+        // Enable the find button
+        function enableButton() {
+            findPunkBtn.disabled = false;
+            btnText.textContent = 'Find My CryptoPunk Match';
+        }
+
+        // Find matching CryptoPunk
+        async function findMatchingPunk() {
+            if (!currentAvatarUrl) {
+                showError('Please select an avatar first');
+                return;
             }
-            
-            // Find matching CryptoPunk
-            async function findMatchingPunk() {
-                const currentAvatar = avatarImage.src;
+
+            // Show loading state
+            findPunkBtn.disabled = true;
+            loading.classList.remove('hidden');
+            btnText.textContent = 'Finding your match...';
+            hideError();
+
+            try {
+                // Simulate API call to find matching punk
+                const match = await simulatePunkMatch(currentAvatarUrl);
                 
-                if (!currentAvatar || currentAvatar.includes('data:image/svg+xml')) {
-                    showError('Please select an avatar first.');
-                    return;
-                }
+                // Display results
+                displayResults(match);
                 
-                // Show loading state
-                findMatchButton.disabled = true;
-                loadingIndicator.classList.remove('hidden');
-                buttonText.textContent = 'Finding your match...';
-                hideError();
-                hideSuccess();
-                
-                try {
-                    // In a real implementation, we would send the avatar image to a server
-                    // that compares it with CryptoPunks and returns the best match
-                    // For this demo, we'll simulate the API call
+            } catch (err) {
+                showError('Failed to find match. Please try again.');
+            } finally {
+                // Reset button
+                findPunkBtn.disabled = false;
+                loading.classList.add('hidden');
+                btnText.textContent = 'Find Another Match';
+            }
+        }
+
+        // Simulate punk matching (replace with real API)
+        function simulatePunkMatch(avatarUrl) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const punkId = Math.floor(Math.random() * 10000);
+                    const matchScore = Math.floor(Math.random() * 30) + 70; // 70-99%
                     
-                    const matchResult = await simulatePunkMatching(currentAvatar);
-                    
-                    // Display the result
-                    displayMatchResult(matchResult);
-                    
-                } catch (error) {
-                    console.error('Error finding matching punk:', error);
-                    showError('Failed to find a matching CryptoPunk. Please try again.');
-                } finally {
-                    // Reset button state
-                    findMatchButton.disabled = false;
-                    loadingIndicator.classList.add('hidden');
-                    buttonText.textContent = farcasterUser ? 'Find My CryptoPunk Match' : 'Find Matching CryptoPunk';
-                }
-            }
-            
-            // Simulate the punk matching API
-            function simulatePunkMatching(avatarUrl) {
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        // Generate a random punk ID between 1 and 10000
-                        const punkId = Math.floor(Math.random() * 10000);
-                        
-                        // Generate a random similarity score between 70% and 95%
-                        const similarity = Math.floor(Math.random() * 25) + 70;
-                        
-                        // Punk image URL (using a placeholder service for demo)
-                        const punkImageUrl = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${punkId}&size=200`;
-                        
-                        resolve({
-                            id: punkId,
-                            name: `CryptoPunk #${punkId}`,
-                            imageUrl: punkImageUrl,
-                            similarity: similarity,
-                            openseaUrl: `https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/${punkId}`
-                        });
-                    }, 2000); // Simulate API delay
-                });
-            }
-            
-            // Display the match result
-            function displayMatchResult(match) {
-                punkPlaceholder.classList.add('hidden');
-                punkImage.src = match.imageUrl;
-                punkImage.classList.remove('hidden');
-                
-                punkName.textContent = match.name;
-                punkId.textContent = `ID: ${match.id}`;
-                similarityScore.textContent = `${match.similarity}% Match`;
-                openseaLink.href = match.openseaUrl;
-                
-                resultCard.classList.remove('hidden');
-                
-                // Scroll to result
-                resultCard.scrollIntoView({ behavior: 'smooth' });
-            }
-            
-            // Set manual avatar
-            function setManualAvatar(avatarUrl) {
-                avatarPlaceholder.classList.add('hidden');
-                avatarImage.src = avatarUrl;
-                avatarImage.classList.remove('hidden');
-                hideError();
-                
-                if (!farcasterUser) {
-                    showSuccess("Avatar set successfully!");
-                }
-            }
-            
-            // Show error message
-            function showError(message) {
-                errorMessage.textContent = message;
-                errorMessage.classList.remove('hidden');
-                successMessage.classList.add('hidden');
-            }
-            
-            // Hide error message
-            function hideError() {
-                errorMessage.classList.add('hidden');
-            }
-            
-            // Show success message
-            function showSuccess(message) {
-                successMessage.textContent = message;
-                successMessage.classList.remove('hidden');
-                errorMessage.classList.add('hidden');
-            }
-            
-            // Hide success message
-            function hideSuccess() {
-                successMessage.classList.add('hidden');
-            }
-            
-            // Event listeners
-            findMatchButton.addEventListener('click', findMatchingPunk);
-            
-            // Avatar option click handlers
-            avatarOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const avatarUrl = this.getAttribute('data-avatar');
-                    setManualAvatar(avatarUrl);
-                });
+                    resolve({
+                        id: punkId,
+                        name: `CryptoPunk #${punkId}`,
+                        imageUrl: `https://cryptopunks.app/cryptopunks/cryptopunk${punkId}.png`,
+                        similarity: matchScore,
+                        openseaUrl: `https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/${punkId}`
+                    });
+                }, 1500);
             });
+        }
+
+        // Display match results
+        function displayResults(match) {
+            punkImage.src = match.imageUrl;
+            punkName.textContent = match.name;
+            similarity.textContent = `${match.similarity}% Match`;
+            openseaLink.href = match.openseaUrl;
             
-            // Initialize the app
-            initializeFarcaster();
+            resultCard.classList.remove('hidden');
+            resultCard.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Set avatar from sample
+        function setSampleAvatar(url) {
+            currentAvatarUrl = url;
+            avatarPlaceholder.classList.add('hidden');
+            avatarImage.src = url;
+            avatarImage.classList.remove('hidden');
+            hideError();
+            enableButton();
+        }
+
+        // Show error message
+        function showError(message) {
+            error.textContent = message;
+            error.classList.remove('hidden');
+        }
+
+        // Hide error message
+        function hideError() {
+            error.classList.add('hidden');
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            // For now, just log it
+            console.log(`${type}: ${message}`);
+        }
+
+        // Event listeners
+        findPunkBtn.addEventListener('click', findMatchingPunk);
+
+        // Sample avatar clicks
+        sampleAvatars.forEach(avatar => {
+            avatar.addEventListener('click', () => {
+                setSampleAvatar(avatar.src);
+            });
         });
+
+        // Initialize the app
+        initializeApp();
     </script>
 </body>
 </html>
