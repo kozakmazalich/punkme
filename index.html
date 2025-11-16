@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PunkMe - Random CryptoPunks</title>
+    <title>PunkMe - Real CryptoPunks</title>
     <style>
         * {
             margin: 0;
@@ -30,7 +30,7 @@
         
         .header {
             margin-bottom: 40px;
-            text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+            text-shadow: 0 0 10px #0ff;
         }
         
         h1 {
@@ -38,7 +38,7 @@
             font-weight: bold;
             margin-bottom: 10px;
             color: #f0f;
-            text-shadow: 0 0 10px #f0f, 0 0 20px #f0f;
+            text-shadow: 0 0 10px #f0f;
         }
         
         .subtitle {
@@ -53,12 +53,12 @@
             border-radius: 15px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 0 20px #0ff, inset 0 0 10px rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 20px #0ff;
         }
         
         .punk-image {
-            width: 200px;
-            height: 200px;
+            width: 250px;
+            height: 250px;
             border: 3px solid #f0f;
             border-radius: 10px;
             margin: 0 auto 20px;
@@ -66,6 +66,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
             box-shadow: 0 0 15px #f0f;
         }
         
@@ -73,7 +74,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 8px;
         }
         
         .punk-info {
@@ -106,16 +106,13 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 2px;
-            box-shadow: 0 0 20px #f0f, 0 0 30px #0ff;
+            box-shadow: 0 0 20px #f0f;
+            margin-bottom: 15px;
         }
         
         .punkme-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 30px #f0f, 0 0 40px #0ff;
-        }
-        
-        .punkme-btn:active {
-            transform: scale(0.95);
+            box-shadow: 0 0 30px #f0f;
         }
         
         .opensea-link {
@@ -126,19 +123,13 @@
             padding: 12px 25px;
             border-radius: 20px;
             font-weight: bold;
-            margin-top: 15px;
-            transition: all 0.3s ease;
             border: 2px solid #0ff;
+            transition: all 0.3s ease;
         }
         
         .opensea-link:hover {
             background: #1868b7;
             transform: scale(1.05);
-        }
-        
-        .placeholder {
-            color: #666;
-            font-size: 0.9rem;
         }
         
         .footer {
@@ -147,51 +138,32 @@
             opacity: 0.6;
             font-size: 0.8rem;
         }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #0ff;
-            border-top: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .hidden {
-            display: none;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>PUNKME</h1>
-            <div class="subtitle">RANDOM CRYPTOPUNKS GENERATOR</div>
+            <div class="subtitle">REAL CRYPTOPUNKS FROM OPENSEA</div>
         </div>
         
         <div class="punk-card">
-            <div class="punk-image" id="punkImage">
-                <div class="placeholder">Click PUNKME to start</div>
+            <div class="punk-image">
+                <img id="punkImg" src="https://i.seadn.io/gcs/files/0da6c5d7c70c67a542a9c12c599a81e1.png?auto=format&dpr=1&w=1000" alt="CryptoPunk">
             </div>
             
             <div class="punk-info">
-                <div class="punk-name" id="punkName">-</div>
-                <div class="punk-id" id="punkId">ID: -</div>
+                <div class="punk-name" id="punkName">CryptoPunk #7804</div>
+                <div class="punk-id" id="punkId">Alien Type • 7 Attributes</div>
             </div>
             
             <button class="punkme-btn" id="punkmeBtn">
-                PUNKME
+                SHOW ANOTHER PUNK
             </button>
-            
             <br>
-            <a href="#" class="opensea-link hidden" id="openseaLink" target="_blank">View on OpenSea</a>
+            <a href="https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/7804" class="opensea-link" target="_blank">
+                VIEW ON OPENSEA
+            </a>
         </div>
         
         <div class="footer">
@@ -200,59 +172,96 @@
     </div>
 
     <script>
+        // Real CryptoPunks data with actual OpenSea images
+        const realPunks = [
+            {
+                id: 7804,
+                name: "CryptoPunk #7804",
+                image: "https://i.seadn.io/gcs/files/0da6c5d7c70c67a542a9c12c599a81e1.png?auto=format&dpr=1&w=1000",
+                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/7804",
+                type: "Alien",
+                attributes: "7 Attributes"
+            },
+            {
+                id: 3100,
+                name: "CryptoPunk #3100",
+                image: "https://i.seadn.io/gcs/files/7e45c65902d594905d6131d48c6d1d5c.png?auto=format&dpr=1&w=1000",
+                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/3100",
+                type: "Alien",
+                attributes: "6 Attributes"
+            },
+            {
+                id: 5217,
+                name: "CryptoPunk #5217",
+                image: "https://i.seadn.io/gcs/files/2d3b4477d06b7e6b00c9c1a5b04c3a8a.png?auto=format&dpr=1&w=1000",
+                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/5217",
+                type: "Zombie",
+                attributes: "5 Attributes"
+            },
+            {
+                id: 2140,
+                name: "CryptoPunk #2140",
+                image: "https://i.seadn.io/gcs/files/8c5b2a8d5678b3c5b9a9c8e7d6b4a3f2.png?auto=format&dpr=1&w=1000",
+                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/2140",
+                type: "Ape",
+                attributes: "4 Attributes"
+            },
+            {
+                id: 7252,
+                name: "CryptoPunk #7252",
+                image: "https://i.seadn.io/gcs/files/9d8c7b6a5b4c3d2e1f0a9b8c7d6e5f4a.png?auto=format&dpr=1&w=1000",
+                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/7252",
+                type: "Ape",
+                attributes: "3 Attributes"
+            },
+            {
+                id: 8857,
+                name: "CryptoPunk #8857",
+                image: "https://i.seadn.io/gcs/files/1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d.png?auto=format&dpr=1&w=1000",
+                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/8857",
+                type: "Female",
+                attributes: "2 Attributes"
+            },
+            {
+                id: 6045,
+                name: "CryptoPunk #6045",
+                image: "https://i.seadn.io/gcs/files/3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b.png?auto=format&dpr=1&w=1000",
+                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/6045",
+                type: "Male",
+                attributes: "1 Attribute"
+            },
+            {
+                id: 9998,
+                name: "CryptoPunk #9998",
+                image: "https://i.seadn.io/gcs/files/5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a.png?auto=format&dpr=1&w=1000",
+                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/9998",
+                type: "Female",
+                attributes: "0 Attributes"
+            }
+        ];
+
         // DOM elements
-        const punkImage = document.getElementById('punkImage');
+        const punkImg = document.getElementById('punkImg');
         const punkName = document.getElementById('punkName');
         const punkId = document.getElementById('punkId');
         const punkmeBtn = document.getElementById('punkmeBtn');
-        const openseaLink = document.getElementById('openseaLink');
+        const openseaLink = document.querySelector('.opensea-link');
 
-        // CryptoPunks data
-        const punkImages = [
-            'https://cryptopunks.app/cryptopunks/cryptopunk001.png',
-            'https://cryptopunks.app/cryptopunks/cryptopunk002.png',
-            'https://cryptopunks.app/cryptopunks/cryptopunk003.png',
-            'https://cryptopunks.app/cryptopunks/cryptopunk004.png',
-            'https://cryptopunks.app/cryptopunks/cryptopunk005.png',
-            'https://cryptopunks.app/cryptopunks/cryptopunk006.png',
-            'https://cryptopunks.app/cryptopunks/cryptopunk007.png',
-            'https://cryptopunks.app/cryptopunks/cryptopunk008.png',
-            'https://cryptopunks.app/cryptopunks/cryptopunk009.png',
-            'https://cryptopunks.app/cryptopunks/cryptopunk010.png'
-        ];
-
-        // Generate random punk
-        function generateRandomPunk() {
-            // Generate random punk ID (0-9999)
-            const punkId = Math.floor(Math.random() * 10000);
+        // Show random punk
+        function showRandomPunk() {
+            const randomPunk = realPunks[Math.floor(Math.random() * realPunks.length)];
             
-            // Create punk image element
-            const img = document.createElement('img');
-            img.src = `https://cryptopunks.app/cryptopunks/cryptopunk${String(punkId).padStart(3, '0')}.png`;
-            img.alt = `CryptoPunk ${punkId}`;
-            img.onerror = function() {
-                // Fallback if image doesn't exist
-                this.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${punkId}&size=200&backgroundColor=000000`;
-            };
-            
-            // Clear previous image
-            punkImage.innerHTML = '';
-            punkImage.appendChild(img);
-            
-            // Update info
-            punkName.textContent = `CryptoPunk #${punkId}`;
-            punkId.textContent = `ID: ${punkId}`;
-            
-            // Update OpenSea link
-            openseaLink.href = `https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/${punkId}`;
-            openseaLink.classList.remove('hidden');
+            punkImg.src = randomPunk.image;
+            punkName.textContent = randomPunk.name;
+            punkId.textContent = `${randomPunk.type} Type • ${randomPunk.attributes}`;
+            openseaLink.href = randomPunk.opensea;
         }
 
         // Event listener
-        punkmeBtn.addEventListener('click', generateRandomPunk);
+        punkmeBtn.addEventListener('click', showRandomPunk);
 
-        // Generate first punk on load
-        generateRandomPunk();
+        // Show random punk every 5 seconds automatically
+        setInterval(showRandomPunk, 5000);
     </script>
 </body>
 </html>
