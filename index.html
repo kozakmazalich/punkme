@@ -3,265 +3,396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PunkMe - Real CryptoPunks</title>
+    <title>PunkMe Generator</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Courier New', monospace;
         }
-        
+
         body {
-            background: #000;
-            color: #0ff;
-            min-height: 100vh;
+            background-color: #000000;
+            font-family: 'Courier New', monospace;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            min-height: 100vh;
             padding: 20px;
         }
-        
+
         .container {
             text-align: center;
             max-width: 400px;
             width: 100%;
         }
-        
-        .header {
-            margin-bottom: 40px;
-            text-shadow: 0 0 10px #0ff;
-        }
-        
+
         h1 {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #f0f;
-            text-shadow: 0 0 10px #f0f;
-        }
-        
-        .subtitle {
-            font-size: 1rem;
-            color: #0ff;
-            opacity: 0.8;
-        }
-        
-        .punk-card {
-            background: #111;
-            border: 2px solid #0ff;
-            border-radius: 15px;
-            padding: 30px;
+            color: #00ff00;
+            font-size: 24px;
             margin-bottom: 30px;
-            box-shadow: 0 0 20px #0ff;
+            text-shadow: 0 0 10px #00ff00;
+            letter-spacing: 2px;
         }
-        
-        .punk-image {
-            width: 250px;
-            height: 250px;
-            border: 3px solid #f0f;
-            border-radius: 10px;
-            margin: 0 auto 20px;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            box-shadow: 0 0 15px #f0f;
+
+        .punk-display {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 20px #00ff00;
+            image-rendering: pixelated;
+            background-color: #000;
         }
-        
-        .punk-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .punk-info {
-            margin-bottom: 20px;
-        }
-        
-        .punk-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #ff0;
-            text-shadow: 0 0 10px #ff0;
-            margin-bottom: 5px;
-        }
-        
-        .punk-id {
-            font-size: 1rem;
-            color: #0ff;
-            opacity: 0.8;
-        }
-        
-        .punkme-btn {
-            background: linear-gradient(45deg, #f0f, #0ff);
-            color: #000;
-            border: none;
-            border-radius: 25px;
+
+        .punk-button {
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
             padding: 15px 40px;
-            font-size: 1.2rem;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 0 20px #f0f;
-            margin-bottom: 15px;
-        }
-        
-        .punkme-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px #f0f;
-        }
-        
-        .opensea-link {
-            display: inline-block;
-            background: #2081e2;
-            color: white;
-            text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 20px;
-            font-weight: bold;
-            border: 2px solid #0ff;
+            letter-spacing: 3px;
             transition: all 0.3s ease;
+            text-shadow: 0 0 5px #00ff00;
+            box-shadow: 0 0 15px #00ff00;
+            position: relative;
+            overflow: hidden;
         }
-        
-        .opensea-link:hover {
-            background: #1868b7;
-            transform: scale(1.05);
+
+        .punk-button:hover {
+            background-color: #00ff00;
+            color: #000;
+            text-shadow: none;
+            box-shadow: 0 0 25px #00ff00;
         }
-        
-        .footer {
-            margin-top: 30px;
-            color: #0ff;
-            opacity: 0.6;
-            font-size: 0.8rem;
+
+        .punk-button:active {
+            transform: scale(0.95);
+        }
+
+        .punk-button::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ff00, #00cc00, #00ff00);
+            z-index: -1;
+            filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .punk-button:hover::before {
+            opacity: 1;
+        }
+
+        .punk-traits {
+            color: #00ff00;
+            margin-top: 20px;
+            font-size: 12px;
+            text-align: left;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .punk-traits h3 {
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .punk-traits ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .punk-traits li {
+            margin-bottom: 5px;
+            padding: 2px 5px;
+            background: rgba(0, 255, 0, 0.1);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>PUNKME</h1>
-            <div class="subtitle">REAL CRYPTOPUNKS FROM OPENSEA</div>
-        </div>
-        
-        <div class="punk-card">
-            <div class="punk-image">
-                <img id="punkImg" src="https://i.seadn.io/gcs/files/0da6c5d7c70c67a542a9c12c599a81e1.png?auto=format&dpr=1&w=1000" alt="CryptoPunk">
-            </div>
-            
-            <div class="punk-info">
-                <div class="punk-name" id="punkName">CryptoPunk #7804</div>
-                <div class="punk-id" id="punkId">Alien Type • 7 Attributes</div>
-            </div>
-            
-            <button class="punkme-btn" id="punkmeBtn">
-                SHOW ANOTHER PUNK
-            </button>
-            <br>
-            <a href="https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/7804" class="opensea-link" target="_blank">
-                VIEW ON OPENSEA
-            </a>
-        </div>
-        
-        <div class="footer">
-            Powered by OpenSea • CryptoPunks Collection
+        <h1>PUNKME GENERATOR</h1>
+        <canvas id="punkCanvas" class="punk-display" width="24" height="24"></canvas>
+        <button class="punk-button" onclick="generatePunk()">PUNKME</button>
+        <div class="punk-traits">
+            <h3>TRAITS:</h3>
+            <ul id="traitsList"></ul>
         </div>
     </div>
 
     <script>
-        // Real CryptoPunks data with actual OpenSea images
-        const realPunks = [
-            {
-                id: 7804,
-                name: "CryptoPunk #7804",
-                image: "https://i.seadn.io/gcs/files/0da6c5d7c70c67a542a9c12c599a81e1.png?auto=format&dpr=1&w=1000",
-                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/7804",
-                type: "Alien",
-                attributes: "7 Attributes"
-            },
-            {
-                id: 3100,
-                name: "CryptoPunk #3100",
-                image: "https://i.seadn.io/gcs/files/7e45c65902d594905d6131d48c6d1d5c.png?auto=format&dpr=1&w=1000",
-                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/3100",
-                type: "Alien",
-                attributes: "6 Attributes"
-            },
-            {
-                id: 5217,
-                name: "CryptoPunk #5217",
-                image: "https://i.seadn.io/gcs/files/2d3b4477d06b7e6b00c9c1a5b04c3a8a.png?auto=format&dpr=1&w=1000",
-                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/5217",
-                type: "Zombie",
-                attributes: "5 Attributes"
-            },
-            {
-                id: 2140,
-                name: "CryptoPunk #2140",
-                image: "https://i.seadn.io/gcs/files/8c5b2a8d5678b3c5b9a9c8e7d6b4a3f2.png?auto=format&dpr=1&w=1000",
-                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/2140",
-                type: "Ape",
-                attributes: "4 Attributes"
-            },
-            {
-                id: 7252,
-                name: "CryptoPunk #7252",
-                image: "https://i.seadn.io/gcs/files/9d8c7b6a5b4c3d2e1f0a9b8c7d6e5f4a.png?auto=format&dpr=1&w=1000",
-                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/7252",
-                type: "Ape",
-                attributes: "3 Attributes"
-            },
-            {
-                id: 8857,
-                name: "CryptoPunk #8857",
-                image: "https://i.seadn.io/gcs/files/1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d.png?auto=format&dpr=1&w=1000",
-                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/8857",
-                type: "Female",
-                attributes: "2 Attributes"
-            },
-            {
-                id: 6045,
-                name: "CryptoPunk #6045",
-                image: "https://i.seadn.io/gcs/files/3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b.png?auto=format&dpr=1&w=1000",
-                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/6045",
-                type: "Male",
-                attributes: "1 Attribute"
-            },
-            {
-                id: 9998,
-                name: "CryptoPunk #9998",
-                image: "https://i.seadn.io/gcs/files/5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a.png?auto=format&dpr=1&w=1000",
-                opensea: "https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/9998",
-                type: "Female",
-                attributes: "0 Attributes"
+        // CryptoPunks color palette (simplified)
+        const COLORS = {
+            skin: ['#F8D898', '#D6A56B', '#A57C52', '#7A5230', '#452812'],
+            hair: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#000000', '#FFFFFF'],
+            bg: ['#000000', '#1A1A1A', '#333333'],
+            accessories: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#FFFFFF']
+        };
+
+        // Punk traits and features
+        const TRAITS = {
+            types: ['Human', 'Zombie', 'Ape', 'Alien'],
+            accessories: [
+                'Earring', 'Cigarette', 'Pipe', 'Medical Mask', 'VR Headset',
+                'Horned Rim Glasses', 'Big Shades', 'Classic Shades', 'Eye Mask',
+                'Bandana', 'Top Hat', 'Cowboy Hat', 'Beanie', 'Cap Forward',
+                'Cap Red', 'Headband', 'Pilot Helmet', 'Tiara', 'Wild Hair',
+                'Mohawk', 'Peak Spike', 'Messy Hair', 'Straight Hair', 'Shaved Head'
+            ],
+            facialHair: ['Luxurious Beard', 'Mustache', 'Goat', 'Shadow Beard', 'Normal Beard'],
+            emotions: ['Smile', 'Frown', 'Neutral', 'Surprised']
+        };
+
+        class PunkGenerator {
+            constructor() {
+                this.canvas = document.getElementById('punkCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.traitsList = document.getElementById('traitsList');
+                this.currentPunk = null;
             }
-        ];
 
-        // DOM elements
-        const punkImg = document.getElementById('punkImg');
-        const punkName = document.getElementById('punkName');
-        const punkId = document.getElementById('punkId');
-        const punkmeBtn = document.getElementById('punkmeBtn');
-        const openseaLink = document.querySelector('.opensea-link');
+            generate() {
+                // Clear canvas
+                this.ctx.fillStyle = this.getRandomColor(COLORS.bg);
+                this.ctx.fillRect(0, 0, 24, 24);
 
-        // Show random punk
-        function showRandomPunk() {
-            const randomPunk = realPunks[Math.floor(Math.random() * realPunks.length)];
-            
-            punkImg.src = randomPunk.image;
-            punkName.textContent = randomPunk.name;
-            punkId.textContent = `${randomPunk.type} Type • ${randomPunk.attributes}`;
-            openseaLink.href = randomPunk.opensea;
+                // Generate punk traits
+                const punk = {
+                    type: this.getRandomTrait(TRAITS.types),
+                    skinColor: this.getRandomColor(COLORS.skin),
+                    hairColor: this.getRandomColor(COLORS.hair),
+                    hasAccessory: Math.random() > 0.6,
+                    accessory: this.getRandomTrait(TRAITS.accessories),
+                    hasFacialHair: Math.random() > 0.7,
+                    facialHair: this.getRandomTrait(TRAITS.facialHair),
+                    emotion: this.getRandomTrait(TRAITS.emotions),
+                    special: Math.random() > 0.9
+                };
+
+                this.currentPunk = punk;
+                this.drawPunk(punk);
+                this.displayTraits(punk);
+                
+                return punk;
+            }
+
+            drawPunk(punk) {
+                const ctx = this.ctx;
+
+                // Draw base (face)
+                ctx.fillStyle = punk.type === 'Zombie' ? '#8BAB8B' : 
+                               punk.type === 'Ape' ? '#8B7355' : 
+                               punk.type === 'Alien' ? '#00FF00' : punk.skinColor;
+                
+                // Face shape
+                this.drawFace(ctx, punk);
+
+                // Eyes
+                this.drawEyes(ctx, punk);
+
+                // Mouth based on emotion
+                this.drawMouth(ctx, punk);
+
+                // Hair/head features
+                this.drawHair(ctx, punk);
+
+                // Accessories
+                if (punk.hasAccessory) {
+                    this.drawAccessory(ctx, punk);
+                }
+
+                // Facial hair
+                if (punk.hasFacialHair) {
+                    this.drawFacialHair(ctx, punk);
+                }
+
+                // Special effects for rare punks
+                if (punk.special) {
+                    this.drawSpecialEffects(ctx);
+                }
+            }
+
+            drawFace(ctx, punk) {
+                ctx.fillStyle = punk.type === 'Zombie' ? '#8BAB8B' : 
+                               punk.type === 'Ape' ? '#8B7355' : 
+                               punk.type === 'Alien' ? '#00FF00' : punk.skinColor;
+                
+                // Main face
+                ctx.fillRect(6, 4, 12, 14);
+                
+                // Ears
+                ctx.fillRect(4, 8, 2, 4);
+                ctx.fillRect(18, 8, 2, 4);
+            }
+
+            drawEyes(ctx, punk) {
+                ctx.fillStyle = '#000000';
+                
+                if (punk.type === 'Alien') {
+                    // Alien eyes
+                    ctx.fillRect(8, 8, 2, 4);
+                    ctx.fillRect(14, 8, 2, 4);
+                } else {
+                    // Normal eyes
+                    ctx.fillRect(9, 8, 1, 2);
+                    ctx.fillRect(14, 8, 1, 2);
+                    
+                    // Pupils
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(9, 8, 1, 1);
+                    ctx.fillRect(14, 8, 1, 1);
+                }
+            }
+
+            drawMouth(ctx, punk) {
+                ctx.fillStyle = '#000000';
+                
+                switch(punk.emotion) {
+                    case 'Smile':
+                        ctx.fillRect(9, 14, 6, 1);
+                        ctx.fillRect(8, 15, 1, 1);
+                        ctx.fillRect(15, 15, 1, 1);
+                        break;
+                    case 'Frown':
+                        ctx.fillRect(9, 15, 6, 1);
+                        ctx.fillRect(8, 14, 1, 1);
+                        ctx.fillRect(15, 14, 1, 1);
+                        break;
+                    case 'Surprised':
+                        ctx.fillRect(10, 14, 4, 3);
+                        break;
+                    default: // Neutral
+                        ctx.fillRect(9, 15, 6, 1);
+                }
+            }
+
+            drawHair(ctx, punk) {
+                if (punk.type === 'Alien') return; // Aliens are bald
+                
+                ctx.fillStyle = punk.hairColor;
+                
+                // Different hair styles based on random selection
+                const hairStyle = Math.floor(Math.random() * 4);
+                
+                switch(hairStyle) {
+                    case 0: // Mohawk
+                        ctx.fillRect(6, 2, 12, 2);
+                        for (let i = 0; i < 12; i += 2) {
+                            ctx.fillRect(6 + i, 0, 1, 2);
+                        }
+                        break;
+                    case 1: // Wild hair
+                        ctx.fillRect(5, 2, 14, 3);
+                        // Spikes
+                        for (let i = 0; i < 14; i += 2) {
+                            if (Math.random() > 0.5) {
+                                ctx.fillRect(5 + i, 0, 1, 2);
+                            }
+                        }
+                        break;
+                    case 2: // Cap
+                        ctx.fillStyle = '#FF0000';
+                        ctx.fillRect(5, 2, 14, 2);
+                        ctx.fillRect(7, 4, 10, 1);
+                        break;
+                    default: // Normal hair
+                        ctx.fillRect(5, 2, 14, 3);
+                }
+            }
+
+            drawAccessory(ctx, punk) {
+                ctx.fillStyle = this.getRandomColor(COLORS.accessories);
+                
+                if (punk.accessory.includes('Glasses') || punk.accessory.includes('Shades')) {
+                    // Glasses
+                    ctx.fillRect(7, 7, 8, 2);
+                    ctx.fillRect(7, 7, 2, 1);
+                    ctx.fillRect(13, 7, 2, 1);
+                } else if (punk.accessory.includes('Hat')) {
+                    // Hat
+                    ctx.fillRect(4, 1, 16, 2);
+                    ctx.fillRect(6, 3, 12, 1);
+                }
+            }
+
+            drawFacialHair(ctx, punk) {
+                ctx.fillStyle = punk.hairColor;
+                ctx.fillRect(8, 16, 8, 2);
+                ctx.fillRect(9, 18, 6, 1);
+            }
+
+            drawSpecialEffects(ctx) {
+                // Glow effect for rare punks
+                ctx.strokeStyle = '#FFFF00';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(2, 2, 20, 20);
+                
+                // Sparkles
+                ctx.fillStyle = '#FFFFFF';
+                for (let i = 0; i < 5; i++) {
+                    const x = Math.floor(Math.random() * 24);
+                    const y = Math.floor(Math.random() * 24);
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            }
+
+            getRandomColor(colorArray) {
+                return colorArray[Math.floor(Math.random() * colorArray.length)];
+            }
+
+            getRandomTrait(traitArray) {
+                return traitArray[Math.floor(Math.random() * traitArray.length)];
+            }
+
+            displayTraits(punk) {
+                const traits = [
+                    `Type: ${punk.type}`,
+                    `Skin: ${punk.skinColor}`,
+                    `Hair: ${punk.hairColor}`,
+                    `Emotion: ${punk.emotion}`,
+                    punk.hasAccessory ? `Accessory: ${punk.accessory}` : 'Accessory: None',
+                    punk.hasFacialHair ? `Facial Hair: ${punk.facialHair}` : 'Facial Hair: None',
+                    punk.special ? '★ RARE PUNK ★' : 'Common'
+                ].filter(Boolean);
+
+                this.traitsList.innerHTML = traits.map(trait => 
+                    `<li>${trait}</li>`
+                ).join('');
+            }
         }
 
-        // Event listener
-        punkmeBtn.addEventListener('click', showRandomPunk);
+        // Initialize generator
+        const punkGenerator = new PunkGenerator();
 
-        // Show random punk every 5 seconds automatically
-        setInterval(showRandomPunk, 5000);
+        function generatePunk() {
+            punkGenerator.generate();
+        }
+
+        // Generate initial punk on load
+        window.addEventListener('load', function() {
+            generatePunk();
+            
+            // Prevent any potential content script conflicts
+            if (window.chrome && chrome.runtime) {
+                console.log('Running in extension context - content scripts disabled');
+            }
+        });
+
+        // Ensure no external script interference
+        Object.defineProperty(window, 'rabby-content-script', {
+            value: null,
+            writable: false
+        });
     </script>
 </body>
 </html>
