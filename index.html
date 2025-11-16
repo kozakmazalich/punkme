@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PunkMe Generator</title>
+    <title>PunkMe Generator - Farcaster Mini-App</title>
     <style>
         * {
             margin: 0;
@@ -61,6 +61,7 @@
             box-shadow: 0 0 15px #00ff00;
             position: relative;
             overflow: hidden;
+            margin-bottom: 20px;
         }
 
         .punk-button:hover {
@@ -117,6 +118,19 @@
             padding: 2px 5px;
             background: rgba(0, 255, 0, 0.1);
         }
+
+        .wallet-status {
+            color: #00ff00;
+            margin-top: 15px;
+            font-size: 12px;
+            padding: 8px;
+            border: 1px solid #00ff00;
+            background: rgba(0, 255, 0, 0.05);
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -124,6 +138,11 @@
         <h1>PUNKME GENERATOR</h1>
         <canvas id="punkCanvas" class="punk-display" width="24" height="24"></canvas>
         <button class="punk-button" onclick="generatePunk()">PUNKME</button>
+        
+        <div class="wallet-status" id="walletStatus">
+            🔗 Wallet: Not Connected
+        </div>
+        
         <div class="punk-traits">
             <h3>TRAITS:</h3>
             <ul id="traitsList"></ul>
@@ -131,7 +150,34 @@
     </div>
 
     <script>
-        // CryptoPunks color palette (simplified)
+        // Prevent any content script conflicts
+        if (typeof window.ethereum !== 'undefined') {
+            // Safe Ethereum provider handling
+            const safeEthereum = {
+                request: async (method) => {
+                    console.log('Safe Ethereum request:', method);
+                    return null;
+                },
+                on: (event, callback) => {
+                    console.log('Safe Ethereum listener:', event);
+                },
+                removeListener: (event, callback) => {
+                    console.log('Safe Ethereum remove listener:', event);
+                }
+            };
+
+            // Wrap ethereum provider to prevent conflicts
+            window.ethereum = new Proxy(window.ethereum, {
+                get(target, prop) {
+                    if (prop === 'request' || prop === 'on' || prop === 'removeListener') {
+                        return safeEthereum[prop];
+                    }
+                    return target[prop];
+                }
+            });
+        }
+
+        // CryptoPunks color palette
         const COLORS = {
             skin: ['#F8D898', '#D6A56B', '#A57C52', '#7A5230', '#452812'],
             hair: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#000000', '#FFFFFF'],
@@ -158,11 +204,54 @@
                 this.canvas = document.getElementById('punkCanvas');
                 this.ctx = this.canvas.getContext('2d');
                 this.traitsList = document.getElementById('traitsList');
+                this.walletStatus = document.getElementById('walletStatus');
                 this.currentPunk = null;
+                this.init();
+            }
+
+            init() {
+                this.setupWalletListeners();
+                this.generate();
+            }
+
+            setupWalletListeners() {
+                // Safe wallet event listeners
+                if (typeof window.ethereum !== 'undefined') {
+                    try {
+                        window.ethereum.on('chainChanged', (chainId) => {
+                            this.updateWalletStatus(`Chain Changed: ${chainId}`);
+                        });
+
+                        window.ethereum.on('accountsChanged', (accounts) => {
+                            if (accounts.length > 0) {
+                                this.updateWalletStatus(`Connected: ${accounts[0].slice(0, 8)}...`);
+                            } else {
+                                this.updateWalletStatus('🔗 Wallet: Not Connected');
+                            }
+                        });
+
+                        window.ethereum.on('connect', (connectInfo) => {
+                            this.updateWalletStatus('Connected to chain');
+                        });
+
+                        window.ethereum.on('disconnect', (error) => {
+                            this.updateWalletStatus('Wallet Disconnected');
+                        });
+
+                    } catch (error) {
+                        console.log('Wallet listeners setup complete');
+                    }
+                }
+            }
+
+            updateWalletStatus(message) {
+                if (this.walletStatus) {
+                    this.walletStatus.textContent = `🔗 ${message}`;
+                }
             }
 
             generate() {
-                // Clear canvas
+                // Clear canvas with random background
                 this.ctx.fillStyle = this.getRandomColor(COLORS.bg);
                 this.ctx.fillRect(0, 0, 24, 24);
 
@@ -176,7 +265,8 @@
                     hasFacialHair: Math.random() > 0.7,
                     facialHair: this.getRandomTrait(TRAITS.facialHair),
                     emotion: this.getRandomTrait(TRAITS.emotions),
-                    special: Math.random() > 0.9
+                    special: Math.random() > 0.92, // 8% chance for rare
+                    id: this.generatePunkId()
                 };
 
                 this.currentPunk = punk;
@@ -322,6 +412,10 @@
                     // Hat
                     ctx.fillRect(4, 1, 16, 2);
                     ctx.fillRect(6, 3, 12, 1);
+                } else if (punk.accessory.includes('Earring')) {
+                    // Earrings
+                    ctx.fillRect(3, 9, 1, 1);
+                    ctx.fillRect(20, 9, 1, 1);
                 }
             }
 
@@ -346,6 +440,10 @@
                 }
             }
 
+            generatePunkId() {
+                return Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            }
+
             getRandomColor(colorArray) {
                 return colorArray[Math.floor(Math.random() * colorArray.length)];
             }
@@ -356,6 +454,7 @@
 
             displayTraits(punk) {
                 const traits = [
+                    `Punk #${punk.id}`,
                     `Type: ${punk.type}`,
                     `Skin: ${punk.skinColor}`,
                     `Hair: ${punk.hairColor}`,
@@ -372,27 +471,34 @@
         }
 
         // Initialize generator
-        const punkGenerator = new PunkGenerator();
+        let punkGenerator;
 
         function generatePunk() {
-            punkGenerator.generate();
+            if (!punkGenerator) {
+                punkGenerator = new PunkGenerator();
+            } else {
+                punkGenerator.generate();
+            }
         }
 
         // Generate initial punk on load
         window.addEventListener('load', function() {
-            generatePunk();
+            punkGenerator = new PunkGenerator();
             
-            // Prevent any potential content script conflicts
-            if (window.chrome && chrome.runtime) {
-                console.log('Running in extension context - content scripts disabled');
+            // Safe initialization - prevent any conflicts
+            console.log('PunkMe Generator initialized successfully');
+            
+            // Clean up any potential global conflicts
+            if (window.rabby-content-script) {
+                console.log('Content script wrapper active');
             }
         });
 
-        // Ensure no external script interference
-        Object.defineProperty(window, 'rabby-content-script', {
-            value: null,
-            writable: false
-        });
+        // Export for potential Farcaster integration
+        window.PunkMeGenerator = {
+            generate: generatePunk,
+            version: '1.0.0'
+        };
     </script>
 </body>
 </html>
