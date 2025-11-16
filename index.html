@@ -18,6 +18,7 @@
             padding: 20px;
             max-width: 400px;
             margin: 0 auto;
+            min-height: 100vh;
         }
         
         .container {
@@ -92,6 +93,7 @@
             cursor: pointer;
             width: 100%;
             transition: all 0.2s;
+            margin-bottom: 12px;
         }
         
         .btn:hover {
@@ -103,6 +105,14 @@
             background: #333;
             cursor: not-allowed;
             transform: none;
+        }
+        
+        .btn-secondary {
+            background: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #444;
         }
         
         .loading {
@@ -185,7 +195,16 @@
             font-size: 14px;
         }
         
-        .manual-section {
+        .success {
+            background: #10B981;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+        
+        .sample-section {
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #333;
@@ -215,6 +234,35 @@
         .hidden {
             display: none;
         }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 12px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+        }
+        
+        .user-username {
+            color: #888;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -225,22 +273,35 @@
         </header>
         
         <div class="card">
+            <div id="userInfo" class="user-info hidden">
+                <img id="userAvatar" class="user-avatar" alt="User Avatar">
+                <div class="user-details">
+                    <div class="user-name" id="userDisplayName">User Name</div>
+                    <div class="user-username" id="userUsername">@username</div>
+                </div>
+            </div>
+            
             <div class="avatar-section">
                 <div class="avatar-container">
                     <div class="avatar-placeholder" id="avatarPlaceholder">
-                        Your Farcaster Avatar
+                        No avatar selected
                     </div>
                     <img id="avatarImage" class="avatar-image hidden" alt="Avatar">
                 </div>
                 
+                <button id="useMyAvatarBtn" class="btn btn-secondary">
+                    Use My Farcaster Avatar
+                </button>
+                
                 <button id="findPunkBtn" class="btn" disabled>
                     <span class="loading hidden" id="loading"></span>
-                    <span id="btnText">Initializing...</span>
+                    <span id="btnText">Find Matching CryptoPunk</span>
                 </button>
                 
                 <div id="error" class="error hidden"></div>
+                <div id="success" class="success hidden"></div>
                 
-                <div class="manual-section">
+                <div class="sample-section">
                     <p style="color: #666; font-size: 14px; margin-bottom: 12px;">Or try with sample avatars:</p>
                     <div class="sample-avatars">
                         <img src="https://i.imgur.com/5E6Q0yH.png" class="sample-avatar" alt="Sample 1">
@@ -269,12 +330,18 @@
 
     <script>
         // DOM elements
+        const userInfo = document.getElementById('userInfo');
+        const userAvatar = document.getElementById('userAvatar');
+        const userDisplayName = document.getElementById('userDisplayName');
+        const userUsername = document.getElementById('userUsername');
         const avatarPlaceholder = document.getElementById('avatarPlaceholder');
         const avatarImage = document.getElementById('avatarImage');
+        const useMyAvatarBtn = document.getElementById('useMyAvatarBtn');
         const findPunkBtn = document.getElementById('findPunkBtn');
         const btnText = document.getElementById('btnText');
         const loading = document.getElementById('loading');
         const error = document.getElementById('error');
+        const success = document.getElementById('success');
         const resultCard = document.getElementById('resultCard');
         const punkImage = document.getElementById('punkImage');
         const punkName = document.getElementById('punkName');
@@ -284,27 +351,25 @@
 
         // Current avatar URL
         let currentAvatarUrl = null;
+        let farcasterUser = null;
 
         // Initialize the app
         async function initializeApp() {
             try {
                 // Try to get Farcaster user data
-                const userData = await getFarcasterUserData();
+                farcasterUser = await getFarcasterUserData();
                 
-                if (userData && userData.avatarUrl) {
-                    currentAvatarUrl = userData.avatarUrl;
-                    avatarPlaceholder.classList.add('hidden');
-                    avatarImage.src = currentAvatarUrl;
-                    avatarImage.classList.remove('hidden');
-                    enableButton();
-                    showMessage('Farcaster avatar detected!', 'success');
+                if (farcasterUser) {
+                    showSuccess("Farcaster detected! Click 'Use My Avatar' to load your profile.");
+                    useMyAvatarBtn.disabled = false;
                 } else {
-                    // No Farcaster data, enable manual mode
-                    enableManualMode();
+                    showError("Farcaster not detected. Use sample avatars instead.");
+                    useMyAvatarBtn.disabled = true;
                 }
             } catch (err) {
-                console.log('Farcaster not available, using manual mode');
-                enableManualMode();
+                console.log('Farcaster not available');
+                showError("Farcaster not detected. Use sample avatars instead.");
+                useMyAvatarBtn.disabled = true;
             }
         }
 
@@ -312,42 +377,85 @@
         async function getFarcasterUserData() {
             // Method 1: Try Farcaster SDK
             if (typeof farcaster !== 'undefined') {
+                console.log("Farcaster SDK detected");
                 await farcaster.actions.ready();
                 const context = await farcaster.getContext();
+                console.log("Farcaster context:", context);
                 return context?.user;
             }
             
             // Method 2: Try Warpcast
             if (typeof window?.fc !== 'undefined') {
+                console.log("Warpcast detected");
                 const user = await window.fc.getUser();
                 return user;
             }
             
-            // Method 3: Check URL parameters (common in Farcaster frames)
-            const urlParams = new URLSearchParams(window.location.search);
-            const avatarParam = urlParams.get('avatar');
-            const userParam = urlParams.get('user');
-            
-            if (avatarParam) {
+            // Method 3: Check for frame data
+            if (window.frameData) {
+                console.log("Frame data detected:", window.frameData);
                 return {
-                    avatarUrl: avatarParam,
-                    username: userParam || 'farcaster_user'
+                    avatarUrl: window.frameData.avatarUrl,
+                    username: window.frameData.username,
+                    displayName: window.frameData.displayName
+                };
+            }
+            
+            // Method 4: Check URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const avatarUrl = urlParams.get('avatar');
+            const username = urlParams.get('username');
+            
+            if (avatarUrl) {
+                return {
+                    avatarUrl: avatarUrl,
+                    username: username || 'farcaster_user',
+                    displayName: username || 'Farcaster User'
                 };
             }
             
             return null;
         }
 
-        // Enable manual mode
-        function enableManualMode() {
-            enableButton();
-            showMessage('Select a sample avatar or wait for Farcaster detection', 'info');
-        }
+        // Use Farcaster avatar
+        async function useFarcasterAvatar() {
+            if (!farcasterUser) {
+                showError("No Farcaster user data available");
+                return;
+            }
 
-        // Enable the find button
-        function enableButton() {
-            findPunkBtn.disabled = false;
-            btnText.textContent = 'Find My CryptoPunk Match';
+            try {
+                useMyAvatarBtn.disabled = true;
+                useMyAvatarBtn.textContent = "Loading...";
+                
+                if (farcasterUser.avatarUrl) {
+                    currentAvatarUrl = farcasterUser.avatarUrl;
+                    
+                    // Display user info
+                    userInfo.classList.remove('hidden');
+                    userAvatar.src = farcasterUser.avatarUrl;
+                    userDisplayName.textContent = farcasterUser.displayName || 'Farcaster User';
+                    userUsername.textContent = `@${farcasterUser.username || 'user'}`;
+                    
+                    // Display avatar
+                    avatarPlaceholder.classList.add('hidden');
+                    avatarImage.src = farcasterUser.avatarUrl;
+                    avatarImage.classList.remove('hidden');
+                    
+                    // Enable find button
+                    findPunkBtn.disabled = false;
+                    
+                    showSuccess("Your Farcaster avatar is loaded!");
+                } else {
+                    showError("No avatar found for this user");
+                }
+            } catch (err) {
+                showError("Failed to load avatar");
+                console.error(err);
+            } finally {
+                useMyAvatarBtn.disabled = false;
+                useMyAvatarBtn.textContent = "Use My Farcaster Avatar";
+            }
         }
 
         // Find matching CryptoPunk
@@ -362,6 +470,7 @@
             loading.classList.remove('hidden');
             btnText.textContent = 'Finding your match...';
             hideError();
+            hideSuccess();
 
             try {
                 // Simulate API call to find matching punk
@@ -376,31 +485,39 @@
                 // Reset button
                 findPunkBtn.disabled = false;
                 loading.classList.add('hidden');
-                btnText.textContent = 'Find Another Match';
+                btnText.textContent = 'Find Matching CryptoPunk';
             }
         }
 
-        // Simulate punk matching (replace with real API)
+        // Simulate punk matching
         function simulatePunkMatch(avatarUrl) {
             return new Promise((resolve) => {
                 setTimeout(() => {
                     const punkId = Math.floor(Math.random() * 10000);
                     const matchScore = Math.floor(Math.random() * 30) + 70; // 70-99%
                     
+                    // Use actual CryptoPunk image if available, otherwise placeholder
+                    const punkImageUrl = `https://cryptopunks.app/cryptopunks/cryptopunk${punkId}.png`;
+                    
                     resolve({
                         id: punkId,
                         name: `CryptoPunk #${punkId}`,
-                        imageUrl: `https://cryptopunks.app/cryptopunks/cryptopunk${punkId}.png`,
+                        imageUrl: punkImageUrl,
                         similarity: matchScore,
                         openseaUrl: `https://opensea.io/assets/ethereum/0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb/${punkId}`
                     });
-                }, 1500);
+                }, 2000);
             });
         }
 
         // Display match results
         function displayResults(match) {
             punkImage.src = match.imageUrl;
+            punkImage.onerror = function() {
+                // Fallback if punk image doesn't load
+                this.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${match.id}&size=200`;
+            };
+            
             punkName.textContent = match.name;
             similarity.textContent = `${match.similarity}% Match`;
             openseaLink.href = match.openseaUrl;
@@ -409,20 +526,30 @@
             resultCard.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Set avatar from sample
+        // Set sample avatar
         function setSampleAvatar(url) {
             currentAvatarUrl = url;
+            
+            // Hide user info
+            userInfo.classList.add('hidden');
+            
+            // Display avatar
             avatarPlaceholder.classList.add('hidden');
             avatarImage.src = url;
             avatarImage.classList.remove('hidden');
+            
+            // Enable find button
+            findPunkBtn.disabled = false;
+            
             hideError();
-            enableButton();
+            showSuccess("Sample avatar selected!");
         }
 
         // Show error message
         function showError(message) {
             error.textContent = message;
             error.classList.remove('hidden');
+            success.classList.add('hidden');
         }
 
         // Hide error message
@@ -430,13 +557,20 @@
             error.classList.add('hidden');
         }
 
-        // Show message
-        function showMessage(message, type) {
-            // For now, just log it
-            console.log(`${type}: ${message}`);
+        // Show success message
+        function showSuccess(message) {
+            success.textContent = message;
+            success.classList.remove('hidden');
+            error.classList.add('hidden');
+        }
+
+        // Hide success message
+        function hideSuccess() {
+            success.classList.add('hidden');
         }
 
         // Event listeners
+        useMyAvatarBtn.addEventListener('click', useFarcasterAvatar);
         findPunkBtn.addEventListener('click', findMatchingPunk);
 
         // Sample avatar clicks
