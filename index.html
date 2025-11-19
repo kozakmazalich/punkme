@@ -499,6 +499,19 @@
             generate: generatePunk,
             version: '1.0.0'
         };
-    </script>
+        
+     // Initialize when DOM is loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeBaseApp);
+    } else {
+      initializeBaseApp();
+    }
+  </script>
+  <script type="module">
+  import { sdk } from "https://esm.sh/@farcaster/miniapp-sdk";
+
+  // Tell Base that your app is ready to show
+  sdk.actions.ready().catch(console.error);
+</script>
 </body>
 </html>
